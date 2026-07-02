@@ -44,6 +44,14 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
+
+    /* Kustomisasi CSS Video agar 100% selebar wadah (Requirement 1) */
+    #qrReaderContainer video {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      border-radius: 1rem;
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
@@ -98,11 +106,15 @@
 
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Password</label>
+          <!-- Ditambahkan fitur toggle intip password (Requirement 3) -->
           <div class="relative">
             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
               <i data-lucide="lock" class="w-5 h-5"></i>
             </span>
-            <input type="password" id="loginPassword" required placeholder="••••••••" class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50">
+            <input type="password" id="loginPassword" required placeholder="••••••••" class="block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50">
+            <button type="button" onclick="togglePasswordVisibility('loginPassword', 'loginPasswordIcon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-indigo-600">
+              <i id="loginPasswordIcon" data-lucide="eye" class="w-5 h-5"></i>
+            </button>
           </div>
         </div>
 
@@ -302,7 +314,13 @@
 
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Password</label>
-                  <input type="password" id="userPassword" placeholder="Masukkan password" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                  <!-- Ditambahkan fitur toggle intip password di Form Pengguna (Requirement 3) -->
+                  <div class="relative">
+                    <input type="password" id="userPassword" placeholder="Masukkan password" class="block w-full px-4 pr-10 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <button type="button" onclick="togglePasswordVisibility('userPassword', 'userPasswordIcon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-indigo-600">
+                      <i id="userPasswordIcon" data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
+                  </div>
                   <span id="passHelpText" class="text-xs text-slate-400 mt-1 block hidden">Biarkan kosong jika tidak ingin mengubah password.</span>
                 </div>
 
@@ -513,20 +531,21 @@
                 </div>
               </div>
 
-              <!-- Bingkai Layar Kamera -->
+              <!-- Bingkai Layar Kamera (Terintegrasi Penuh dengan CSS override) -->
               <div class="my-6 relative bg-black rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-slate-800">
                 <!-- Reader Container -->
                 <div id="qrReaderContainer" class="absolute inset-0 w-full h-full"></div>
                 
-                <!-- Overlay Penunjuk Pindai -->
+                <!-- Overlay Penunjuk Pindai (Requirement 1) -->
                 <div id="scannerOverlay" class="absolute inset-0 border-2 border-dashed border-indigo-500/30 rounded-2xl pointer-events-none flex items-center justify-center hidden">
-                  <div class="w-60 h-60 border-2 border-indigo-400 rounded-2xl relative flex items-center justify-center bg-indigo-500/5 shadow-inner">
+                  <!-- Bingkai Fokus diatur melingkupi hampir seluruh wadah (Requirement 1) -->
+                  <div class="w-[90%] h-[90%] md:w-[85%] md:h-[85%] border-2 border-indigo-400 rounded-2xl relative flex items-center justify-center bg-indigo-500/5 shadow-inner">
                     <!-- Laser Line -->
                     <div class="absolute w-full h-1 bg-indigo-400 top-0 left-0 shadow-lg animate-[bounce_2s_infinite]"></div>
                   </div>
                 </div>
 
-                <div id="scannerPlaceholder" class="text-center p-6 text-slate-500">
+                <div id="scannerPlaceholder" class="text-center p-6 text-slate-500 w-full">
                   <i data-lucide="camera-off" class="w-12 h-12 mx-auto mb-3 text-slate-700 animate-pulse"></i>
                   <p class="font-medium text-sm">Pemindai Mati</p>
                   <p class="text-xs text-slate-600 mt-1">Tekan tombol 'Mulai Scan' di kanan atas untuk menyalakan kamera.</p>
@@ -552,13 +571,13 @@
               </div>
             </div>
 
-            <!-- Log Absensi Terbaru -->
+            <!-- Log Absensi Hari Ini Saja (Scrollable - Requirement 5) -->
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[520px]">
-              <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+              <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
                 <div class="space-y-0.5">
                   <span class="font-bold text-slate-900 text-base">Log Absensi</span>
                   <p class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Real-time hari ini
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span> Hari Ini Saja
                   </p>
                 </div>
                 <button onclick="refreshAttendanceLogs()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-indigo-600 transition-colors">
@@ -566,8 +585,8 @@
                 </button>
               </div>
               
-              <!-- Daftar Absensi Scrolled -->
-              <div class="flex-1 overflow-y-auto divide-y divide-slate-100" id="attendanceLogList">
+              <!-- Daftar Absensi Scrolled secara vertikal independen (Requirement 5) -->
+              <div class="flex-1 overflow-y-auto divide-y divide-slate-100 min-h-0" id="attendanceLogList">
                 <!-- Dinamis via JS -->
                 <div class="p-8 text-center text-slate-400 flex flex-col items-center justify-center h-full gap-2">
                   <i data-lucide="calendar-x" class="w-10 h-10 text-slate-300"></i>
@@ -648,11 +667,24 @@
         currentUser = JSON.parse(storedUser);
         setupUserInterface();
       } else {
-        // PERBAIKAN BUG: Mengganti pemanggilan fungsi showPage() yang tidak eksis
         document.getElementById('appDashboard').classList.add('hidden');
         document.getElementById('loginPage').classList.remove('hidden');
       }
     });
+
+    // Fitur toggle melihat password (Requirement 3)
+    function togglePasswordVisibility(inputId, iconId) {
+      const passwordInput = document.getElementById(inputId);
+      const iconElement = document.getElementById(iconId);
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        iconElement.setAttribute("data-lucide", "eye-off");
+      } else {
+        passwordInput.type = "password";
+        iconElement.setAttribute("data-lucide", "eye");
+      }
+      lucide.createIcons();
+    }
 
     // Inisialisasi Jam Digital Real-time
     function initLiveClock() {
@@ -790,14 +822,16 @@
       alert.classList.add('translate-x-96', 'opacity-0', 'pointer-events-none');
     }
 
-    // Request ke API Google Apps Script Backend (dengan CORS and Backoff)
-    async function apiRequest(action, data = {}) {
+    // Request ke API Google Apps Script Backend (ditambah suppressLoader - Requirement 2)
+    async function apiRequest(action, data = {}, suppressLoader = false) {
       if (!API_URL) {
         showAlert('Konfigurasi Kurang', 'Ganti konstanta API_URL di dalam file index.html dengan tautan Web App Apps Script Anda!', 'error');
         return { success: false, message: 'API_URL kosong!' };
       }
 
-      showLoading(true);
+      if (!suppressLoader) {
+        showLoading(true);
+      }
 
       const payload = { action: action, ...data };
       let retries = 5;
@@ -816,11 +850,15 @@
           
           if (!response.ok) throw new Error('Kesalahan jaringan server');
           const result = await response.json();
-          showLoading(false);
+          if (!suppressLoader) {
+            showLoading(false);
+          }
           return result;
         } catch (error) {
           if (i === retries - 1) {
-            showLoading(false);
+            if (!suppressLoader) {
+              showLoading(false);
+            }
             showAlert('Gagal Menghubungkan', 'Sistem gagal menghubungi server. Silakan periksa jaringan Anda atau deployment Apps Script.', 'error');
             return { success: false, message: error.toString() };
           }
@@ -1360,7 +1398,6 @@
       showLoading(true);
 
       // Lakukan serial render and download
-      // Catatan: Supaya browser tidak menolak banyak pop-up unduh sekaligus, kita beri delay kecil.
       for (let index = 0; index < filtered.length; index++) {
         const student = filtered[index];
         
@@ -1477,9 +1514,17 @@
       // Buat instansi HTML5 QR Scanner
       html5QrScanner = new Html5Qrcode("qrReaderContainer");
       
+      // Set konfigurasi scan area fokus ke 95% selebar video (Requirement 1)
       const config = {
-        fps: 15,
-        qrbox: { width: 220, height: 220 },
+        fps: 20,
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const qrboxSize = Math.floor(minEdge * 0.95); // Fokus penuh 95% (Requirement 1)
+          return {
+            width: qrboxSize,
+            height: qrboxSize
+          };
+        },
         aspectRatio: 1.777778 // 16:9
       };
 
@@ -1538,15 +1583,20 @@
 
       updateScanStatus('Mengirim Absen...', 'bg-amber-500/10 text-amber-400');
 
-      // Kirim ke API Google Sheets
-      apiRequest('submitAttendance', { studentId: decodedText }).then(response => {
+      // Kirim ke API Google Sheets tanpa menampilkan popup loading (suppressLoader = true - Requirement 2)
+      apiRequest('submitAttendance', { studentId: decodedText }, true).then(response => {
         if (response.success) {
+          // Sukses Absen
           showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) berhasil diabsen pada pukul ${response.log.time}.`, 'success');
-          // Update log tabel
-          fetchAttendanceLogs();
+          fetchAttendanceLogs(); // Muat ulang log hari ini secara dinamis
           updateScanStatus('Sukses!', 'bg-emerald-500/10 text-emerald-400');
         } else {
-          showAlert('Gagal Absen', response.message, response.studentName ? 'info' : 'error');
+          // Terdeteksi Absen Ganda atau Gagal (Requirement 4)
+          if (response.studentName) {
+            showAlert('Sudah Absen!', response.message, 'error');
+          } else {
+            showAlert('Gagal Absen', response.message, 'error');
+          }
           updateScanStatus('Ditolak', 'bg-rose-500/10 text-rose-400');
         }
 
@@ -1561,12 +1611,14 @@
     }
 
     function onQrCodeError(errorMessage) {
-      // Sangat wajar terjadi di setiap frame jika tidak menemukan QR
+      // Dikosongkan untuk menghindari log spamming setiap frame video
     }
 
     // Muat Log Absensi
     async function fetchAttendanceLogs() {
-      const response = await apiRequest('getAttendanceLogs');
+      // suppressLoader diset ke true jika dipanggil saat scanner aktif agar tidak mengganggu kamera
+      const suppress = isScanning;
+      const response = await apiRequest('getAttendanceLogs', {}, suppress);
       if (response.success) {
         attendanceLogs = response.data;
         renderAttendanceLogs();
@@ -1582,7 +1634,7 @@
           <div class="p-8 text-center text-slate-400 flex flex-col items-center justify-center h-full gap-2">
             <i data-lucide="calendar-x" class="w-10 h-10 text-slate-300"></i>
             <p class="font-medium text-sm">Belum ada absen</p>
-            <p class="text-xs text-slate-400">Silakan scan kode QR untuk mendaftar.</p>
+            <p class="text-xs text-slate-400">Silakan scan kode QR untuk mendaftar hari ini.</p>
           </div>
         `;
         lucide.createIcons();
@@ -1611,7 +1663,7 @@
 
     function refreshAttendanceLogs() {
       fetchAttendanceLogs().then(() => {
-        showAlert('Log Diperbarui', 'Data kehadiran terbaru berhasil dimuat.', 'info');
+        showAlert('Log Diperbarui', 'Data kehadiran hari ini berhasil dimuat.', 'info');
       });
     }
 
