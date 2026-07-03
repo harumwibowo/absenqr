@@ -126,23 +126,43 @@
   </section>
 
   <!-- ================= LAYOUT UTAMA (DASHBOARD & SIDEBAR) ================= -->
-  <section id="appDashboard" class="hidden flex-1 flex flex-col md:flex-row min-h-screen">
+  <section id="appDashboard" class="hidden flex-1 relative min-h-screen overflow-hidden">
     
+    <!-- Mobile Header -->
+    <div class="md:hidden flex items-center justify-between px-4 py-3 bg-indigo-900 text-white border-b border-indigo-800 shrink-0">
+      <div class="flex items-center gap-3">
+        <!-- Tombol Show/Hide Sidebar untuk Layar Mobile -->
+        <button onclick="toggleSidebar()" class="p-1 hover:bg-indigo-800 rounded transition-colors" title="Toggle Sidebar">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+        <div class="flex items-center gap-2">
+          <i data-lucide="scan-face" class="w-6 h-6 text-indigo-300"></i>
+          <span class="font-bold text-base tracking-wider">PRESENSI QR</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Sidebar Container -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-indigo-950 text-indigo-200 transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 ease-in-out flex flex-col border-r border-indigo-900">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-indigo-950 text-indigo-200 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-r border-indigo-900">
       <!-- Sidebar Header -->
-      <div class="p-6 border-b border-indigo-900 flex items-center gap-3">
-        <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-400">
-          <i data-lucide="scan-face" class="w-8 h-8"></i>
+      <div class="p-6 border-b border-indigo-900 flex items-center justify-between gap-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-indigo-500/10 rounded-xl text-indigo-400">
+            <i data-lucide="scan-face" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-white text-base tracking-wide leading-none" id="sidebarSchoolName">PRESENSI</h1>
+            <span class="text-xs text-indigo-400 font-medium">QR Code System</span>
+          </div>
         </div>
-        <div>
-          <h1 class="font-bold text-white text-base tracking-wide leading-none" id="sidebarSchoolName">PRESENSI</h1>
-          <span class="text-xs text-indigo-400 font-medium">QR Code System</span>
-        </div>
+        <!-- Tombol Tutup Sidebar Khusus Mobile yang diletakkan di dalam Sidebar -->
+        <button onclick="toggleSidebar()" class="md:hidden p-1.5 hover:bg-indigo-900 rounded-xl text-indigo-300">
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <!-- Informasi Pengguna Login -->
-      <div class="p-4 mx-4 mt-4 bg-indigo-900/30 rounded-2xl border border-indigo-900 flex items-center gap-3">
+      <div class="p-4 mx-4 mt-4 bg-indigo-900/30 rounded-2xl border border-indigo-900 flex items-center gap-3 shrink-0">
         <div class="w-10 h-10 bg-gradient-to-tr from-amber-400 to-orange-500 rounded-full flex items-center justify-center font-bold text-white shadow-md uppercase" id="avatarLetter">A</div>
         <div class="overflow-hidden">
           <h4 class="font-semibold text-white text-sm truncate" id="sideUserFullName">Nama Pengguna</h4>
@@ -182,7 +202,7 @@
             <i data-lucide="camera" class="w-5 h-5"></i>
             Scan Absensi
           </button>
-          <!-- Menu Laporan Absen (Dapat Diakses Admin, Guru, Kepsek - Requirement 3) -->
+          <!-- Menu Laporan Absen -->
           <button onclick="navigateTo('laporan')" id="nav-laporan" class="menu-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-indigo-900/40 text-indigo-200 hover:text-white">
             <i data-lucide="clipboard-list" class="w-5 h-5"></i>
             Laporan Absen
@@ -200,7 +220,7 @@
       </nav>
 
       <!-- Logout -->
-      <div class="p-4 border-t border-indigo-900">
+      <div class="p-4 border-t border-indigo-900 shrink-0">
         <button onclick="handleLogout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-all bg-rose-500/10 text-rose-300 hover:bg-rose-500 hover:text-white shadow-sm">
           <i data-lucide="log-out" class="w-4 h-4"></i>
           Logout
@@ -209,18 +229,24 @@
     </aside>
 
     <!-- Overlay Sidebar Mobile -->
-    <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden transition-all duration-300"></div>
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-30 hidden md:hidden transition-all duration-300"></div>
 
     <!-- KONTEN UTAMA -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-      <!-- Header Atas (Desktop Only) -->
-      <header class="hidden md:flex items-center justify-between px-8 py-4 bg-white border-b border-slate-100 shadow-sm">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900" id="headerPageTitle">Dashboard</h2>
-          <p class="text-xs text-slate-400 mt-0.5" id="headerPageSubtitle">Selamat datang kembali</p>
+    <main class="flex-1 flex flex-col overflow-hidden transition-all duration-300 min-h-screen" id="mainContent">
+      <!-- Header Atas (Ditambahkan tombol Toggle Sidebar untuk Desktop & Mobile) -->
+      <header class="flex items-center justify-between px-4 md:px-8 py-4 bg-white border-b border-slate-100 shadow-sm shrink-0">
+        <div class="flex items-center gap-4">
+          <!-- Tombol Show/Hide Sidebar untuk Semua Layar -->
+          <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-100 rounded-xl text-slate-600 transition-colors" title="Toggle Sidebar">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h2 class="text-lg md:text-xl font-bold text-slate-900" id="headerPageTitle">Dashboard</h2>
+            <p class="text-[10px] md:text-xs text-slate-400 mt-0.5" id="headerPageSubtitle">Selamat datang kembali</p>
+          </div>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-xs text-slate-500 font-medium" id="headerSchoolLabel">Memuat...</span>
+          <span class="text-[10px] md:text-xs text-slate-500 font-medium" id="headerSchoolLabel">Memuat...</span>
           <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
         </div>
       </header>
@@ -383,7 +409,7 @@
                   <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Kelas</label>
                   <input type="text" id="studentClass" required placeholder="Contoh: XII-IPA-1" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                 </div>
-                <!-- Tambah Kolom Nomor HP (Requirement 2) -->
+                <!-- Tambah Kolom Nomor HP -->
                 <div>
                   <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Nomor HP (WhatsApp Orang Tua)</label>
                   <input type="text" id="studentPhone" required placeholder="Contoh: 081234567890" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
@@ -517,7 +543,7 @@
               </div>
             </div>
 
-            <!-- Log Absensi Hari Ini Saja (Scrollable & Hari Ini - Requirement 5) -->
+            <!-- Log Absensi Hari Ini Saja -->
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[520px]">
               <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between shrink-0">
                 <div class="space-y-0.5">
@@ -541,7 +567,7 @@
           </div>
         </div>
 
-        <!-- ================= HALAMAN: LAPORAN REKAP ABSENSI (Requirement 3) ================= -->
+        <!-- ================= HALAMAN: LAPORAN REKAP ABSENSI ================= -->
         <div id="page-laporan" class="page-content hidden page-fade-in space-y-6">
           <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-4">
             <div class="flex flex-col md:flex-row items-end gap-4">
@@ -574,13 +600,15 @@
                     <th class="px-6 py-4">ID Siswa</th>
                     <th class="px-6 py-4">Nama Siswa</th>
                     <th class="px-6 py-4">Status Kehadiran</th>
+                    <!-- Ditambahkan Kolom Jam (Revisi 1) -->
+                    <th class="px-6 py-4">Jam Absen</th>
                     <th class="px-6 py-4">Keterangan</th>
                     <th class="px-6 py-4 text-center">Aksi WA</th>
                   </tr>
                 </thead>
                 <tbody id="laporanTableBody" class="divide-y divide-slate-100">
                   <tr>
-                    <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                    <td colspan="6" class="px-6 py-12 text-center text-slate-400">
                       Silakan pilih tanggal dan kelas terlebih dahulu.
                     </td>
                   </tr>
@@ -596,7 +624,7 @@
           </div>
         </div>
 
-        <!-- ================= HALAMAN: PENGATURAN (Requirement 4) ================= -->
+        <!-- ================= HALAMAN: PENGATURAN ================= -->
         <div id="page-pengaturan" class="page-content hidden page-fade-in space-y-6">
           <div class="max-w-xl bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
             <div class="flex items-center gap-2 border-b border-slate-100 pb-4">
@@ -686,6 +714,9 @@
     let isScanning = false;
     let currentSettings = {};
     let dailyReportData = [];
+    
+    // Status State Visibilitas Sidebar
+    let isSidebarOpen = true;
 
     // Inisialisasi awal saat halaman dimuat
     window.addEventListener('load', () => {
@@ -703,6 +734,68 @@
           document.getElementById('loginPage').classList.remove('hidden');
         }
       });
+
+      // Tetapkan inisialisasi awal penempatan letak sidebar berdasarkan lebar layar awal
+      initSidebarState();
+    });
+
+    // Menghitung State Sidebar Berdasarkan Ukuran Viewport
+    function initSidebarState() {
+      if (window.innerWidth < 768) {
+        isSidebarOpen = false;
+        applySidebarClasses(false);
+      } else {
+        isSidebarOpen = true;
+        applySidebarClasses(true);
+      }
+    }
+
+    // Fungsi Utama Toggle Sidebar (Hide / Show)
+    function toggleSidebar() {
+      isSidebarOpen = !isSidebarOpen;
+      applySidebarClasses(isSidebarOpen);
+    }
+
+    // Mengaplikasikan Class CSS berdasarkan Status Aktif Sidebar
+    function applySidebarClasses(isOpen) {
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const overlay = document.getElementById('sidebarOverlay');
+
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        if (window.innerWidth >= 768) {
+          mainContent.classList.add('md:pl-64');
+          overlay.classList.add('hidden');
+        } else {
+          overlay.classList.remove('hidden');
+        }
+      } else {
+        sidebar.classList.remove('translate-x-0');
+        sidebar.classList.add('-translate-x-full');
+        if (window.innerWidth >= 768) {
+          mainContent.classList.remove('md:pl-64');
+        }
+        overlay.classList.add('hidden');
+      }
+    }
+
+    // Penanganan perubahan resolusi viewport dinamis
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        if (isSidebarOpen) {
+          document.getElementById('mainContent').classList.add('md:pl-64');
+          document.getElementById('sidebarOverlay').classList.add('hidden');
+        } else {
+          document.getElementById('mainContent').classList.remove('md:pl-64');
+        }
+      } else {
+        document.getElementById('mainContent').classList.remove('md:pl-64');
+        if (isSidebarOpen) {
+          document.getElementById('sidebarOverlay').classList.remove('hidden');
+        }
+      }
     });
 
     // Fitur toggle melihat password
@@ -754,6 +847,11 @@
         stopScanner();
       }
 
+      // Sembunyikan sidebar di mobile setelah memilih menu
+      if (window.innerWidth < 768 && isSidebarOpen) {
+        toggleSidebar();
+      }
+
       activePage = pageName;
       
       // Update Menu Aktif
@@ -791,11 +889,6 @@
         targetPage.classList.remove('hidden');
       }
 
-      // Close mobile sidebar jika terbuka
-      const sidebar = document.getElementById('sidebar');
-      sidebar.classList.add('-translate-x-full');
-      document.getElementById('sidebarOverlay').classList.add('hidden');
-
       // Muat data spesifik halaman
       if (pageName === 'dashboard') {
         fetchDashboardStats();
@@ -815,19 +908,6 @@
         fetchStudents().then(() => populateLaporanClassOptions());
       } else if (pageName === 'pengaturan') {
         loadSettingsForm();
-      }
-    }
-
-    // Toggle Sidebar Mobile
-    function toggleMobileSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.getElementById('sidebarOverlay');
-      if (sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.remove('-translate-x-full');
-        overlay.classList.remove('hidden');
-      } else {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
       }
     }
 
@@ -973,6 +1053,7 @@
         settingsMenu.classList.add('hidden');
       }
 
+      initSidebarState();
       navigateTo('dashboard');
     }
 
@@ -1109,7 +1190,9 @@
         allStudents = response.data;
         populateClassFilter();
         renderStudentTable();
+        return response.data;
       }
+      return [];
     }
 
     function populateClassFilter() {
@@ -1230,7 +1313,7 @@
       }
     }
 
-    // Unduh Template Excel (Requirement 2 & 3)
+    // Unduh Template Excel
     function downloadStudentTemplate() {
       const data = [
         { "id": "NIS-CONTOH-1", "name": "Budi Santoso", "classGroup": "XII-IPA-1", "phone": "081234567890" },
@@ -1245,7 +1328,7 @@
       XLSX.writeFile(workbook, "Template_Siswa_Presensi.xlsx");
     }
 
-    // Import Excel (Requirement 1 & 2)
+    // Import Excel
     function handleExcelImport(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1271,7 +1354,7 @@
             return;
           }
 
-          // Pemetaan paksa tipe string menghindari hilangnya prefiks angka 0 (Requirement 1)
+          // Pemetaan paksa tipe string menghindari hilangnya prefiks angka 0
           const formattedData = rawData.map(item => ({
             id: item.id ? item.id.toString().trim() : "",
             name: item.name ? item.name.toString().trim() : "",
@@ -1330,7 +1413,7 @@
         return;
       }
 
-      const filtered = allStudents.filter(s => s.classGroup === selectedClass);
+      const filtered = allStudents.filter(s => s.classGroup.trim() === selectedClass.trim());
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-400">Kelas ini tidak memiliki siswa.</td></tr>`;
         return;
@@ -1343,7 +1426,7 @@
             <td class="px-6 py-4 font-semibold text-slate-900">${student.name}</td>
             <td class="px-6 py-4 text-slate-500 text-sm font-medium">${student.classGroup}</td>
             <td class="px-6 py-4 text-center">
-              <button onclick="showSingleQR('${student.id}', '${escapeHtml(student.name)}', '${student.classGroup}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs rounded-xl transition-all">
+              <button onclick="showSingleQR('${student.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-semibold text-xs rounded-xl transition-all">
                 <i data-lucide="qr-code" class="w-3.5 h-3.5"></i>
                 Generate QR
               </button>
@@ -1354,13 +1437,20 @@
       lucide.createIcons();
     }
 
-    function showSingleQR(id, name, classGroup) {
+    // Menampilkan Pratinjau QR Code per Siswa di Modal
+    function showSingleQR(id) {
+      const student = allStudents.find(s => s.id === id);
+      if (!student) {
+        showAlert('Error', 'Siswa tidak ditemukan.', 'error');
+        return;
+      }
+
       const modal = document.getElementById('qrModal');
       const qrContainer = document.getElementById('modalQRContent');
       qrContainer.innerHTML = '';
 
-      document.getElementById('modalStudentName').textContent = name;
-      document.getElementById('modalStudentClass').textContent = classGroup;
+      document.getElementById('modalStudentName').textContent = student.name;
+      document.getElementById('modalStudentClass').textContent = student.classGroup;
       document.getElementById('modalStudentId').textContent = `ID: ${id}`;
 
       new QRCode(qrContainer, {
@@ -1372,7 +1462,7 @@
         correctLevel: QRCode.CorrectLevel.H
       });
 
-      document.getElementById('btnDownloadSingleQR').onclick = () => downloadSingleQRImage(id, name);
+      document.getElementById('btnDownloadSingleQR').onclick = () => downloadSingleQRImage(id, student.name);
       modal.classList.remove('opacity-0', 'pointer-events-none');
     }
 
@@ -1600,7 +1690,6 @@
 
       updateScanStatus('Mengirim Absen...', 'bg-amber-500/10 text-amber-400');
 
-      // Panggil backend tanpa modal loading (suppressLoader = true)
       apiRequest('submitAttendance', { studentId: decodedText }, true).then(response => {
         if (response.success) {
           showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) berhasil diabsen pada pukul ${response.log.time}.`, 'success');
@@ -1678,7 +1767,7 @@
     }
 
 
-    // ================= LAPORAN REKAP ABSENSI (Requirement 3) =================
+    // ================= LAPORAN REKAP ABSENSI =================
     function populateLaporanClassOptions() {
       const select = document.getElementById('laporanClassFilter');
       const activeClass = select.value;
@@ -1711,21 +1800,24 @@
       }
     }
 
+    // Melakukan Render Tabel Rekap (Revisi 1: Ditambahkan Kolom Jam di render baris tabel)
     function renderDailyReportTable() {
       const tbody = document.getElementById('laporanTableBody');
       tbody.innerHTML = '';
 
       if (dailyReportData.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
         return;
       }
 
       dailyReportData.forEach((row, index) => {
-        // Logika pewarnaan latar belakang dropdown status
         let statusBg = "bg-rose-100 text-rose-800 border-rose-200"; // Alpa
         if (row.status === "Hadir") statusBg = "bg-emerald-100 text-emerald-800 border-emerald-200";
         if (row.status === "Sakit") statusBg = "bg-amber-100 text-amber-800 border-amber-200";
         if (row.status === "Izin") statusBg = "bg-blue-100 text-blue-800 border-blue-200";
+
+        // Tampilkan tanda strip jika jam absen kosong/belum terekam (Revisi 1 & 2)
+        const displayTime = row.time ? row.time : "-";
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50/50 transition-colors">
@@ -1739,6 +1831,8 @@
                 <option value="Alpa" ${row.status === 'Alpa' ? 'selected' : ''}>Alpa</option>
               </select>
             </td>
+            <!-- Kolom Jam Absen (Revisi 1) -->
+            <td class="px-6 py-4 font-mono text-xs text-slate-600 font-semibold">${displayTime}</td>
             <td class="px-6 py-4">
               <input type="text" value="${row.keterangan || ''}" onchange="updateRowKeteranganLocal(${index}, this.value)" placeholder="Tulis catatan..." class="px-3 py-1.5 w-full border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
             </td>
@@ -1756,7 +1850,7 @@
 
     function updateRowStatusLocal(index, val) {
       dailyReportData[index].status = val;
-      renderDailyReportTable(); // Render ulang agar warna kelas CSS dinamis langsung diperbarui
+      renderDailyReportTable();
     }
 
     function updateRowKeteranganLocal(index, val) {
@@ -1781,7 +1875,7 @@
       }
     }
 
-    // Mengirim WA Fonnte Individu (Requirement 3)
+    // Mengirim notifikasi WA harian (Revisi 2: Ditambahkan parameter "time")
     async function sendSingleWA(index) {
       const item = dailyReportData[index];
       const dateStr = document.getElementById('laporanDate').value;
@@ -1795,7 +1889,8 @@
         studentId: item.studentId,
         dateStr: dateStr,
         status: item.status,
-        keterangan: item.keterangan
+        keterangan: item.keterangan,
+        time: item.time // Mengirimkan Jam ke Backend (Revisi 2)
       });
 
       if (response.success) {
@@ -1805,7 +1900,6 @@
       }
     }
 
-    // Mengirim WA Fonnte Massal / Semua Siswa di tabel (Requirement 3)
     async function sendBulkWA() {
       if (dailyReportData.length === 0) {
         showAlert('Batal', 'Tabel data rekap kosong. Tampilkan rekap kelas terlebih dahulu.', 'error');
@@ -1828,7 +1922,7 @@
     }
 
 
-    // ================= PENGATURAN HALAMAN (Requirement 4) =================
+    // ================= PENGATURAN HALAMAN =================
     async function loadSettingsForm() {
       const response = await apiRequest('getSettings');
       if (response.success) {
@@ -1858,6 +1952,17 @@
       } else {
         showAlert('Gagal', response.message, 'error');
       }
+    }
+
+    // Helper untuk menangani proteksi XSS dan perbaikan error tanda kutip
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
   </script>
