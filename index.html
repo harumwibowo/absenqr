@@ -632,11 +632,11 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">URL Logo Sekolah (Opsional)</label>
-                <input type="text" id="settingSchoolLogo" placeholder="https://contoh.com/logo.png" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                <input type="text" id="settingSchoolLogo" autocomplete="off" placeholder="https://contoh.com/logo.png" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Key API Fonnte (WhatsApp Gateway)</label>
-                <input type="password" id="settingFonnteApiKey" placeholder="Masukkan API Key Fonnte" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                <input type="password" id="settingFonnteApiKey" autocomplete="new-password" placeholder="Masukkan API Key Fonnte" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Zona Waktu Aplikasi</label>
@@ -663,6 +663,11 @@
         </div>
 
       </div>
+      
+      <!-- Footer Terenkripsi -->
+      <footer class="py-4 text-center text-xs text-slate-400 font-medium border-t border-slate-100 bg-white shrink-0 mt-auto">
+        &copy; <script>document.write(new Date().getFullYear())</script> Made by Harum Wibowo
+      </footer>
     </main>
   </section>
 
@@ -881,6 +886,7 @@
       }
 
       activePage = pageName;
+      sessionStorage.setItem('lastActivePage', pageName);
       
       // Update Menu Aktif
       document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -1081,7 +1087,9 @@
       }
 
       initSidebarState();
-      navigateTo('dashboard');
+      
+      const lastPage = sessionStorage.getItem('lastActivePage') || 'dashboard';
+      navigateTo(lastPage);
     }
 
     // ================= DASHBOARD STATS =================
