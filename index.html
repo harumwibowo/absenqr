@@ -1990,6 +1990,7 @@
       if (response.success) {
         currentSettings = response.data;
         document.getElementById('settingSchoolName').value = currentSettings.SchoolName || "";
+        document.getElementById('settingSchoolLogo').value = currentSettings.SchoolLogo || "";
         document.getElementById('settingFonnteApiKey').value = currentSettings.FonnteApiKey || "";
         document.getElementById('settingTimezone').value = currentSettings.Timezone || "WIB";
         document.getElementById('settingWorkDays').value = currentSettings.WorkDays || "5";
