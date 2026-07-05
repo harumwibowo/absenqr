@@ -1400,7 +1400,7 @@
     async function fetchStudents() {
       const response = await apiRequest('getStudents');
       if (response.success) {
-        allStudents = response.data;
+        allStudents = response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
         populateClassFilter();
         renderStudentTable();
         return response.data;
@@ -2027,7 +2027,7 @@
 
       const response = await apiRequest('getDailyReport', { dateStr, classGroup });
       if (response.success) {
-        dailyReportData = response.data;
+        dailyReportData = response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
         renderDailyReportTable();
       }
     }
@@ -2228,6 +2228,7 @@
       const response = await apiRequest('getMonthlyReport', { month, year, classGroup });
       if (response.success) {
         lastLoadedHolidays = response.holidays || [];
+        response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
         renderRekapTable(response.data, month, year);
         renderRekapHolidayInfo(lastLoadedHolidays);
       }
