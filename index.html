@@ -207,6 +207,11 @@
             <i data-lucide="clipboard-list" class="w-5 h-5"></i>
             Laporan Absen
           </button>
+          <!-- Menu Rekap -->
+          <button onclick="navigateTo('rekap')" id="nav-rekap" class="menu-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all hover:bg-indigo-900/40 text-indigo-200 hover:text-white">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            Rekap
+          </button>
         </div>
 
         <!-- PENGATURAN (Admin) -->
@@ -618,6 +623,42 @@
           </div>
         </div>
 
+        <!-- ================= HALAMAN: REKAP BULANAN ================= -->
+        <div id="page-rekap" class="page-content hidden page-fade-in space-y-6">
+          <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-4">
+            <div class="flex flex-col md:flex-row items-end gap-4">
+              <div class="w-full md:w-48">
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Pilih Bulan</label>
+                <select id="rekapMonth" class="block w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                </select>
+              </div>
+              <div class="w-full md:w-48">
+                <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Pilih Kelas</label>
+                <select id="rekapClassFilter" class="block w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                  <option value="">-- Pilih Kelas --</option>
+                </select>
+              </div>
+              <button onclick="loadRekapData()" class="w-full md:w-auto px-6 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                Tampilkan
+              </button>
+              <button onclick="downloadRekapExcel()" class="w-full md:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                Download Rekap
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm" id="rekapTable">
+                <thead id="rekapTableHead" class="bg-slate-50 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-100"></thead>
+                <tbody id="rekapTableBody" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- ================= HALAMAN: PENGATURAN ================= -->
         <div id="page-pengaturan" class="page-content hidden page-fade-in space-y-6">
           <div class="max-w-xl bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
@@ -666,7 +707,7 @@
       
       <!-- Footer Terenkripsi -->
       <footer class="py-4 text-center text-xs text-slate-400 font-medium border-t border-slate-100 bg-white shrink-0 mt-auto">
-        &copy; <script>document.write(new Date().getFullYear())</script> Made by Harum Wibowo
+        &copy; <script>document.write(new Date().getFullYear())</script> Made by Harum Wibowo | Versi 1.0
       </footer>
     </main>
   </section>
@@ -907,6 +948,7 @@
         generateqr: { title: 'Generate QR Code', subtitle: 'Cetak kode QR identifikasi siswa' },
         scan: { title: 'Scan Absensi', subtitle: 'Perekaman kehadiran menggunakan kamera' },
         laporan: { title: 'Laporan Absen', subtitle: 'Rekap kehadiran harian siswa, koreksi manual, dan pengiriman WA' },
+        rekap: { title: 'Rekap Bulanan', subtitle: 'Rekap kehadiran siswa per bulan lengkap dengan persentase' },
         pengaturan: { title: 'Pengaturan Aplikasi', subtitle: 'Kelola nama sekolah, kredensial Fonnte WA, dan zona waktu' }
       };
 
@@ -939,6 +981,9 @@
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('laporanDate').value = today;
         fetchStudents().then(() => populateLaporanClassOptions());
+      } else if (pageName === 'rekap') {
+        populateRekapMonthOptions();
+        fetchStudents().then(() => populateRekapClassOptions());
       } else if (pageName === 'pengaturan') {
         loadSettingsForm();
       }
@@ -1983,6 +2028,136 @@
       }
     }
 
+
+    // ================= REKAP BULANAN =================
+    function populateRekapMonthOptions() {
+      const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const select = document.getElementById('rekapMonth');
+      select.innerHTML = '';
+      monthNames.forEach((name, index) => {
+        select.innerHTML += `<option value="${index + 1}" ${index === currentMonth ? 'selected' : ''}>${name}</option>`;
+      });
+    }
+
+    function populateRekapClassOptions() {
+      const select = document.getElementById('rekapClassFilter');
+      const activeClass = select.value;
+      const classes = [...new Set(allStudents.map(s => s.classGroup))].sort();
+      select.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+      classes.forEach(c => {
+        select.innerHTML += `<option value="${c}">${c}</option>`;
+      });
+      if (classes.includes(activeClass)) {
+        select.value = activeClass;
+      }
+    }
+
+    async function loadRekapData() {
+      const month = parseInt(document.getElementById('rekapMonth').value);
+      const classGroup = document.getElementById('rekapClassFilter').value;
+      const year = new Date().getFullYear();
+
+      if (!classGroup) {
+        showAlert('Input Kurang', 'Silakan pilih kelas terlebih dahulu.', 'error');
+        return;
+      }
+
+      const response = await apiRequest('getMonthlyReport', { month, year, classGroup });
+      if (response.success) {
+        renderRekapTable(response.data, month, year);
+      }
+    }
+
+    function renderRekapTable(data, month, year) {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const statusColors = { H: 'text-emerald-600', S: 'text-yellow-500', I: 'text-blue-800', A: 'text-red-600' };
+
+      let theadHtml = '<tr>';
+      theadHtml += '<th class="px-3 py-4 sticky left-0 bg-slate-50 min-w-[160px] z-10">Nama Siswa</th>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        theadHtml += `<th class="px-1.5 py-4 text-center w-7 text-[10px]">${d}</th>`;
+      }
+      theadHtml += '<th class="px-3 py-4 text-center text-emerald-600">H</th>';
+      theadHtml += '<th class="px-3 py-4 text-center text-yellow-500">S</th>';
+      theadHtml += '<th class="px-3 py-4 text-center text-blue-800">I</th>';
+      theadHtml += '<th class="px-3 py-4 text-center text-red-600">A</th>';
+      theadHtml += '<th class="px-3 py-4 text-center">Persentase</th>';
+      theadHtml += '</tr>';
+      document.getElementById('rekapTableHead').innerHTML = theadHtml;
+
+      const tbody = document.getElementById('rekapTableBody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        const colspan = daysInMonth + 6;
+        tbody.innerHTML = `<tr><td colspan="${colspan}" class="px-6 py-12 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
+        return;
+      }
+
+      data.forEach(row => {
+        let tr = '<tr class="hover:bg-slate-50/50 transition-colors">';
+        tr += `<td class="px-3 py-2.5 font-semibold text-slate-900 sticky left-0 bg-white min-w-[160px]">${row.name}</td>`;
+
+        row.dailyStatus.forEach(code => {
+          const color = statusColors[code] || '';
+          tr += `<td class="px-1.5 py-2.5 text-center font-bold text-xs ${color}">${code || ''}</td>`;
+        });
+
+        tr += `<td class="px-3 py-2.5 text-center font-bold text-emerald-600">${row.counts.H}</td>`;
+        tr += `<td class="px-3 py-2.5 text-center font-bold text-yellow-500">${row.counts.S}</td>`;
+        tr += `<td class="px-3 py-2.5 text-center font-bold text-blue-800">${row.counts.I}</td>`;
+        tr += `<td class="px-3 py-2.5 text-center font-bold text-red-600">${row.counts.A}</td>`;
+        tr += `<td class="px-3 py-2.5 text-center font-bold text-slate-700">${row.percentage}%</td>`;
+        tr += '</tr>';
+        tbody.innerHTML += tr;
+      });
+
+      lucide.createIcons();
+    }
+
+    function downloadRekapExcel() {
+      const month = parseInt(document.getElementById('rekapMonth').value);
+      const classGroup = document.getElementById('rekapClassFilter').value;
+      const year = new Date().getFullYear();
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+      if (!classGroup) {
+        showAlert('Input Kurang', 'Silakan pilih kelas terlebih dahulu.', 'error');
+        return;
+      }
+
+      const rows = [];
+      const header = ['Nama Siswa'];
+      for (let d = 1; d <= daysInMonth; d++) {
+        header.push(d.toString());
+      }
+      header.push('H', 'S', 'I', 'A', 'Persentase');
+      rows.push(header);
+
+      const tbody = document.getElementById('rekapTableBody');
+      const trs = tbody.querySelectorAll('tr');
+      trs.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length === 0) return;
+        const row = [];
+        tds.forEach(td => row.push(td.textContent.trim()));
+        rows.push(row);
+      });
+
+      if (rows.length <= 1) {
+        showAlert('Data Kosong', 'Tidak ada data rekap untuk diunduh.', 'error');
+        return;
+      }
+
+      const worksheet = XLSX.utils.aoa_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, `Rekap ${monthNames[month-1]} ${year}`);
+      XLSX.writeFile(workbook, `Rekap_Absen_${classGroup}_${monthNames[month-1]}_${year}.xlsx`);
+      showAlert('Sukses', `File rekap berhasil diunduh untuk kelas ${classGroup}.`, 'success');
+    }
 
     // ================= PENGATURAN HALAMAN =================
     async function loadSettingsForm() {
