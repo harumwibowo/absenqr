@@ -70,17 +70,7 @@
     </button>
   </div>
 
-  <!-- ================= LOADING OVERLAY ================= -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex flex-col items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-    <div class="bg-white p-6 rounded-2xl shadow-2xl flex flex-col items-center max-w-xs w-full text-center">
-      <div class="relative flex items-center justify-center w-16 h-16">
-        <div class="absolute w-12 h-12 border-4 border-indigo-200 rounded-full"></div>
-        <div class="absolute w-12 h-12 border-4 border-indigo-600 rounded-full animate-spin border-t-transparent"></div>
-      </div>
-      <h4 class="mt-4 font-semibold text-slate-900 text-lg">Memproses Data</h4>
-      <p class="text-sm text-slate-500 mt-1">Harap tunggu sebentar...</p>
-    </div>
-  </div>
+
 
   <!-- ================= INTERFACE LOGIN ================= -->
   <section id="loginPage" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
@@ -122,7 +112,7 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
+        <button id="btnLoginAdmin" type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
           Masuk ke Dashboard
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -138,7 +128,7 @@
             <input type="text" id="loginStudentId" required placeholder="Masukkan ID Siswa" class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50">
           </div>
         </div>
-        <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
+        <button id="btnLoginSiswa" type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:opacity-95 active:scale-95 transition-all text-sm flex items-center justify-center gap-2">
           Masuk sebagai Siswa
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -367,7 +357,7 @@
                   </select>
                 </div>
                 <div class="flex gap-2 pt-2">
-                  <button type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-indigo-500/10 active:scale-95 transition-all text-sm">Simpan</button>
+                  <button id="btnUserSubmit" type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-indigo-500/10 active:scale-95 transition-all text-sm">Simpan</button>
                   <button type="button" id="btnCancelUserEdit" onclick="resetUserForm()" class="hidden bg-slate-100 text-slate-600 font-semibold py-2.5 px-4 rounded-xl hover:bg-slate-200 transition-all text-sm">Batal</button>
                 </div>
               </form>
@@ -441,7 +431,7 @@
                   <input type="text" id="studentPhone" required placeholder="Contoh: 081234567890" class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm">
                 </div>
                 <div class="flex gap-2 pt-2">
-                  <button type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-indigo-500/10 active:scale-95 transition-all text-sm">Simpan</button>
+                  <button id="btnStudentSubmit" type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-indigo-500/10 active:scale-95 transition-all text-sm">Simpan</button>
                   <button type="button" id="btnCancelStudentEdit" onclick="resetStudentForm()" class="hidden bg-slate-100 text-slate-600 font-semibold py-2.5 px-4 rounded-xl hover:bg-slate-200 transition-all text-sm">Batal</button>
                 </div>
               </form>
@@ -729,7 +719,7 @@
                   </select>
                 </div>
                 <div class="pt-2">
-                  <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-md transition-all text-sm">
+                  <button id="btnSaveSettings" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-md transition-all text-sm">
                     Simpan Pengaturan
                   </button>
                 </div>
@@ -956,7 +946,7 @@
 
     // Ambil Pengaturan Umum di Awal (agar Nama Sekolah di Login sinkron)
     async function fetchAppInitialSettings() {
-      const response = await apiRequest('getSettings', {}, true);
+      const response = await apiRequest('getSettings');
       if (response.success) {
         currentSettings = response.data;
         updateSchoolLabels();
@@ -1079,16 +1069,6 @@
       }
     }
 
-    // Animasi Loading Overlay
-    function showLoading(show) {
-      const loader = document.getElementById('loadingOverlay');
-      if (show) {
-        loader.classList.remove('opacity-0', 'pointer-events-none');
-      } else {
-        loader.classList.add('opacity-0', 'pointer-events-none');
-      }
-    }
-
     // Custom Pop-up Alert
     function showAlert(title, message, type = 'success') {
       const alert = document.getElementById('customAlert');
@@ -1123,15 +1103,31 @@
       alert.classList.add('translate-x-96', 'opacity-0', 'pointer-events-none');
     }
 
+    function btnLoading(btn, loading) {
+      if (loading) {
+        btn._origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>';
+      } else {
+        btn.innerHTML = btn._origHtml || btn.innerHTML;
+        btn.disabled = false;
+      }
+    }
+
+    async function withBtnLoading(btn, fn) {
+      try {
+        btnLoading(btn, true);
+        return await fn();
+      } finally {
+        btnLoading(btn, false);
+      }
+    }
+
     // Request ke API Google Apps Script Backend
-    async function apiRequest(action, data = {}, suppressLoader = false) {
+    async function apiRequest(action, data = {}) {
       if (!API_URL) {
         showAlert('Konfigurasi Kurang', 'Web App Apps Script API_URL belum dikonfigurasi!', 'error');
         return { success: false, message: 'API_URL kosong!' };
-      }
-
-      if (!suppressLoader) {
-        showLoading(true);
       }
 
       const payload = { action: action, ...data };
@@ -1150,16 +1146,9 @@
           });
           
           if (!response.ok) throw new Error('Kesalahan jaringan server');
-          const result = await response.json();
-          if (!suppressLoader) {
-            showLoading(false);
-          }
-          return result;
+          return await response.json();
         } catch (error) {
           if (i === retries - 1) {
-            if (!suppressLoader) {
-              showLoading(false);
-            }
             showAlert('Gagal Menghubungkan', 'Sistem gagal menghubungi server Apps Script.', 'error');
             return { success: false, message: error.toString() };
           }
@@ -1193,16 +1182,17 @@
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
 
-      const response = await apiRequest('login', { username, password }, true);
-      
-      if (response.success) {
-        currentUser = response.user;
-        sessionStorage.setItem('attendance_user', JSON.stringify(currentUser));
-        setupUserInterface();
-        showAlert('Selamat Datang', `Login berhasil. Halo, ${currentUser.fullName}!`, 'success');
-      } else {
-        showAlert('Gagal Masuk', response.message, 'error');
-      }
+      await withBtnLoading(document.getElementById('btnLoginAdmin'), async () => {
+        const response = await apiRequest('login', { username, password });
+        if (response.success) {
+          currentUser = response.user;
+          sessionStorage.setItem('attendance_user', JSON.stringify(currentUser));
+          setupUserInterface();
+          showAlert('Selamat Datang', `Login berhasil. Halo, ${currentUser.fullName}!`, 'success');
+        } else {
+          showAlert('Gagal Masuk', response.message, 'error');
+        }
+      });
     }
 
     async function handleLoginSiswa(e) {
@@ -1212,15 +1202,17 @@
         showAlert('Input Kurang', 'Masukkan ID Siswa.', 'error');
         return;
       }
-      const response = await apiRequest('studentLogin', { studentId }, true);
-      if (response.success) {
-        currentUser = response.user;
-        sessionStorage.setItem('attendance_user', JSON.stringify(currentUser));
-        setupUserInterface();
-        showAlert('Selamat Datang', `Login berhasil. Halo, ${currentUser.fullName}!`, 'success');
-      } else {
-        showAlert('Gagal Masuk', response.message, 'error');
-      }
+      await withBtnLoading(document.getElementById('btnLoginSiswa'), async () => {
+        const response = await apiRequest('studentLogin', { studentId });
+        if (response.success) {
+          currentUser = response.user;
+          sessionStorage.setItem('attendance_user', JSON.stringify(currentUser));
+          setupUserInterface();
+          showAlert('Selamat Datang', `Login berhasil. Halo, ${currentUser.fullName}!`, 'success');
+        } else {
+          showAlert('Gagal Masuk', response.message, 'error');
+        }
+      });
     }
 
     function handleLogout() {
@@ -1286,7 +1278,7 @@
 
     // ================= DASHBOARD STATS =================
     async function fetchDashboardStats() {
-      const response = await apiRequest('getDashboardStats', {}, true);
+      const response = await apiRequest('getDashboardStats');
       if (response.success) {
         document.getElementById('statTotalUsers').textContent = response.stats.users;
         document.getElementById('statTotalStudents').textContent = response.stats.students;
@@ -1296,7 +1288,7 @@
 
     // ================= MANAJEMEN PENGGUNA =================
     async function fetchUsers() {
-      const response = await apiRequest('getUsers', {}, true);
+      const response = await apiRequest('getUsers');
       if (response.success) {
         allUsers = response.data;
         renderUserTable();
@@ -1351,16 +1343,17 @@
       const role = document.getElementById('userRole').value;
 
       const userData = { fullName, username, password, role };
+      const btn = document.getElementById('btnUserSubmit');
       
       let response;
       if (id) {
-        response = await apiRequest('editUser', { id, data: userData });
+        response = await withBtnLoading(btn, () => apiRequest('editUser', { id, data: userData }));
       } else {
         if (!password) {
           showAlert('Isian Kurang', 'Password wajib diisi untuk pengguna baru!', 'error');
           return;
         }
-        response = await apiRequest('addUser', { data: userData });
+        response = await withBtnLoading(btn, () => apiRequest('addUser', { data: userData }));
       }
 
       if (response.success) {
@@ -1412,7 +1405,7 @@
 
     // ================= MANAJEMEN SISWA =================
     async function fetchStudents() {
-      const response = await apiRequest('getStudents', {}, true);
+      const response = await apiRequest('getStudents');
       if (response.success) {
         allStudents = response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
         populateClassFilter();
@@ -1488,12 +1481,13 @@
       const phone = document.getElementById('studentPhone').value.trim();
 
       const studentData = { id, name, classGroup, phone };
+      const btn = document.getElementById('btnStudentSubmit');
       
       let response;
       if (editId) {
-        response = await apiRequest('editStudent', { id: editId, data: studentData });
+        response = await withBtnLoading(btn, () => apiRequest('editStudent', { id: editId, data: studentData }));
       } else {
-        response = await apiRequest('addStudent', { data: studentData });
+        response = await withBtnLoading(btn, () => apiRequest('addStudent', { data: studentData }));
       }
 
       if (response.success) {
@@ -1766,8 +1760,6 @@
         return;
       }
 
-      showLoading(true);
-
       for (let index = 0; index < filtered.length; index++) {
         const student = filtered[index];
         const dummyDiv = document.createElement('div');
@@ -1814,7 +1806,6 @@
         await new Promise(res => setTimeout(res, 300));
       }
 
-      showLoading(false);
       showAlert('Sukses Massal', `Berhasil mengunduh ${filtered.length} QR Code untuk kelas ${selectedClass}`, 'success');
     }
 
@@ -1954,7 +1945,7 @@
 
       updateScanStatus('Mengirim Absen...', 'bg-amber-500/10 text-amber-400');
 
-      apiRequest('submitAttendance', { studentId: decodedText }, true).then(response => {
+      apiRequest('submitAttendance', { studentId: decodedText }).then(response => {
         if (response.success) {
           showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) berhasil diabsen pada pukul ${response.log.time}.`, 'success');
           fetchAttendanceLogs();
@@ -1980,7 +1971,7 @@
     function onQrCodeError(errorMessage) {}
 
     async function fetchAttendanceLogs() {
-      const response = await apiRequest('getAttendanceLogs', {}, true);
+      const response = await apiRequest('getAttendanceLogs');
       if (response.success) {
         attendanceLogs = response.data;
         renderAttendanceLogs();
@@ -2437,7 +2428,7 @@
 
     async function loadHolidays() {
       populateHolidayMonthFilter();
-      const response = await apiRequest('getHolidays', {}, true);
+      const response = await apiRequest('getHolidays');
       if (response.success) {
         renderHolidayTable(response.data);
       }
@@ -2512,11 +2503,12 @@
         return;
       }
 
+      const btn = document.getElementById('holidaySubmitBtn');
       let response;
       if (editId) {
-        response = await apiRequest('updateHoliday', { id: editId, data: { name, startDate, endDate } });
+        response = await withBtnLoading(btn, () => apiRequest('updateHoliday', { id: editId, data: { name, startDate, endDate } }));
       } else {
-        response = await apiRequest('addHoliday', { data: { name, startDate, endDate } });
+        response = await withBtnLoading(btn, () => apiRequest('addHoliday', { data: { name, startDate, endDate } }));
       }
       if (response.success) {
         showAlert('Berhasil', response.message, 'success');
@@ -2541,7 +2533,7 @@
 
     // ================= PENGATURAN HALAMAN =================
     async function loadSettingsForm() {
-      const response = await apiRequest('getSettings', {}, true);
+      const response = await apiRequest('getSettings');
       if (response.success) {
         currentSettings = response.data;
         document.getElementById('settingSchoolName').value = currentSettings.SchoolName || "";
@@ -2561,16 +2553,18 @@
       const Timezone = document.getElementById('settingTimezone').value;
       const WorkDays = document.getElementById('settingWorkDays').value;
 
-      const response = await apiRequest('saveSettings', {
-        data: { SchoolName, SchoolLogo, FonnteApiKey, Timezone, WorkDays }
-      });
+      await withBtnLoading(document.getElementById('btnSaveSettings'), async () => {
+        const response = await apiRequest('saveSettings', {
+          data: { SchoolName, SchoolLogo, FonnteApiKey, Timezone, WorkDays }
+        });
 
-      if (response.success) {
-        showAlert('Tersimpan', response.message, 'success');
-        loadSettingsForm();
-      } else {
-        showAlert('Gagal', response.message, 'error');
-      }
+        if (response.success) {
+          showAlert('Tersimpan', response.message, 'success');
+          loadSettingsForm();
+        } else {
+          showAlert('Gagal', response.message, 'error');
+        }
+      });
     }
 
     // Helper untuk menangani proteksi XSS dan perbaikan error tanda kutip
