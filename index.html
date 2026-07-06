@@ -89,7 +89,7 @@
         <div id="loginLogoContainer" class="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg mb-4">
           <i id="loginLogoIcon" data-lucide="scan-face" class="w-8 h-8"></i>
         </div>
-        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">APLIKASI PRESENSI</h2>
+        <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Presensi QR Code</h2>
         <p class="text-slate-500 text-sm mt-1 text-center" id="loginSchoolLabel">Memuat nama sekolah...</p>
       </div>
 
@@ -1193,7 +1193,7 @@
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
 
-      const response = await apiRequest('login', { username, password });
+      const response = await apiRequest('login', { username, password }, true);
       
       if (response.success) {
         currentUser = response.user;
@@ -1212,7 +1212,7 @@
         showAlert('Input Kurang', 'Masukkan ID Siswa.', 'error');
         return;
       }
-      const response = await apiRequest('studentLogin', { studentId });
+      const response = await apiRequest('studentLogin', { studentId }, true);
       if (response.success) {
         currentUser = response.user;
         sessionStorage.setItem('attendance_user', JSON.stringify(currentUser));
@@ -1286,7 +1286,7 @@
 
     // ================= DASHBOARD STATS =================
     async function fetchDashboardStats() {
-      const response = await apiRequest('getDashboardStats');
+      const response = await apiRequest('getDashboardStats', {}, true);
       if (response.success) {
         document.getElementById('statTotalUsers').textContent = response.stats.users;
         document.getElementById('statTotalStudents').textContent = response.stats.students;
@@ -1296,7 +1296,7 @@
 
     // ================= MANAJEMEN PENGGUNA =================
     async function fetchUsers() {
-      const response = await apiRequest('getUsers');
+      const response = await apiRequest('getUsers', {}, true);
       if (response.success) {
         allUsers = response.data;
         renderUserTable();
@@ -1412,7 +1412,7 @@
 
     // ================= MANAJEMEN SISWA =================
     async function fetchStudents() {
-      const response = await apiRequest('getStudents');
+      const response = await apiRequest('getStudents', {}, true);
       if (response.success) {
         allStudents = response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
         populateClassFilter();
@@ -1980,8 +1980,7 @@
     function onQrCodeError(errorMessage) {}
 
     async function fetchAttendanceLogs() {
-      const suppress = isScanning;
-      const response = await apiRequest('getAttendanceLogs', {}, suppress);
+      const response = await apiRequest('getAttendanceLogs', {}, true);
       if (response.success) {
         attendanceLogs = response.data;
         renderAttendanceLogs();
@@ -2438,7 +2437,7 @@
 
     async function loadHolidays() {
       populateHolidayMonthFilter();
-      const response = await apiRequest('getHolidays');
+      const response = await apiRequest('getHolidays', {}, true);
       if (response.success) {
         renderHolidayTable(response.data);
       }
@@ -2542,7 +2541,7 @@
 
     // ================= PENGATURAN HALAMAN =================
     async function loadSettingsForm() {
-      const response = await apiRequest('getSettings');
+      const response = await apiRequest('getSettings', {}, true);
       if (response.success) {
         currentSettings = response.data;
         document.getElementById('settingSchoolName').value = currentSettings.SchoolName || "";
