@@ -1954,7 +1954,13 @@
       apiRequest('submitAttendance', { studentId: decodedText }).then(response => {
         if (response.success) {
           showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) berhasil diabsen pada pukul ${response.log.time}.`, 'success');
-          fetchAttendanceLogs();
+          
+          // Refresh log secara otomatis saat absen berhasil
+          const refreshBtn = document.getElementById('btnRefreshLog');
+          withBtnIconLoading(refreshBtn, async () => {
+            await fetchAttendanceLogs();
+          });
+          
           updateScanStatus('Sukses!', 'bg-emerald-500/10 text-emerald-400');
         } else {
           if (response.studentName) {
