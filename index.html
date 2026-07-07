@@ -1057,8 +1057,10 @@
         fetchAttendanceLogs();
         if (allHolidays.length === 0) loadHolidays();
       } else if (pageName === 'laporan') {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('laporanDate').value = today;
+        const today = new Date();
+        const offset = today.getTimezoneOffset();
+        const localDate = new Date(today.getTime() - (offset * 60 * 1000));
+        document.getElementById('laporanDate').value = localDate.toISOString().split('T')[0];
         fetchStudents().then(() => populateLaporanClassOptions());
       } else if (pageName === 'rekap') {
         populateRekapMonthOptions();
