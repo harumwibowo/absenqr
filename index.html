@@ -605,7 +605,7 @@
                 <i data-lucide="search" class="w-4 h-4"></i>
                 Tampilkan
               </button>
-              <button id="bulkWaBtn" onclick="sendBulkWA()" class="w-full md:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+              <button id="bulkWaBtn" onclick="withBtnIconLoading(this, () => sendBulkWA())" class="w-full md:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
                 <i data-lucide="send" class="w-4 h-4"></i>
                 Kirim WA Semua
               </button>
@@ -1103,23 +1103,24 @@
       alert.classList.add('translate-x-96', 'opacity-0', 'pointer-events-none');
     }
 
-    function btnLoading(btn, loading) {
+    function btnIconLoading(btn, loading) {
       if (loading) {
         btn._origHtml = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/></svg>';
+        btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>';
       } else {
         btn.innerHTML = btn._origHtml || btn.innerHTML;
         btn.disabled = false;
       }
+      lucide.createIcons();
     }
 
-    async function withBtnLoading(btn, fn) {
+    async function withBtnIconLoading(btn, fn) {
       try {
-        btnLoading(btn, true);
+        btnIconLoading(btn, true);
         return await fn();
       } finally {
-        btnLoading(btn, false);
+        btnIconLoading(btn, false);
       }
     }
 
@@ -1182,7 +1183,7 @@
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
 
-      await withBtnLoading(document.getElementById('btnLoginAdmin'), async () => {
+      await withBtnIconLoading(document.getElementById('btnLoginAdmin'), async () => {
         const response = await apiRequest('login', { username, password });
         if (response.success) {
           currentUser = response.user;
@@ -1202,7 +1203,7 @@
         showAlert('Input Kurang', 'Masukkan ID Siswa.', 'error');
         return;
       }
-      await withBtnLoading(document.getElementById('btnLoginSiswa'), async () => {
+      await withBtnIconLoading(document.getElementById('btnLoginSiswa'), async () => {
         const response = await apiRequest('studentLogin', { studentId });
         if (response.success) {
           currentUser = response.user;
@@ -1347,13 +1348,13 @@
       
       let response;
       if (id) {
-        response = await withBtnLoading(btn, () => apiRequest('editUser', { id, data: userData }));
+        response = await withBtnIconLoading(btn, () => apiRequest('editUser', { id, data: userData }));
       } else {
         if (!password) {
           showAlert('Isian Kurang', 'Password wajib diisi untuk pengguna baru!', 'error');
           return;
         }
-        response = await withBtnLoading(btn, () => apiRequest('addUser', { data: userData }));
+        response = await withBtnIconLoading(btn, () => apiRequest('addUser', { data: userData }));
       }
 
       if (response.success) {
@@ -1485,9 +1486,9 @@
       
       let response;
       if (editId) {
-        response = await withBtnLoading(btn, () => apiRequest('editStudent', { id: editId, data: studentData }));
+        response = await withBtnIconLoading(btn, () => apiRequest('editStudent', { id: editId, data: studentData }));
       } else {
-        response = await withBtnLoading(btn, () => apiRequest('addStudent', { data: studentData }));
+        response = await withBtnIconLoading(btn, () => apiRequest('addStudent', { data: studentData }));
       }
 
       if (response.success) {
@@ -2015,7 +2016,7 @@
     }
 
     async function refreshAttendanceLogs() {
-      await withBtnLoading(document.getElementById('btnRefreshLog'), async () => {
+      await withBtnIconLoading(document.getElementById('btnRefreshLog'), async () => {
         await fetchAttendanceLogs();
         showAlert('Log Diperbarui', 'Data kehadiran hari ini berhasil dimuat.', 'info');
       });
@@ -2047,7 +2048,7 @@
         return;
       }
 
-      await withBtnLoading(document.getElementById('btnLaporanTampilkan'), async () => {
+      await withBtnIconLoading(document.getElementById('btnLaporanTampilkan'), async () => {
         const response = await apiRequest('getDailyReport', { dateStr, classGroup });
         if (response.success) {
           dailyReportData = response.data.sort((a, b) => (a.name || '').localeCompare(b.name || 'id'));
@@ -2109,10 +2110,10 @@
             ${isReadOnly ? ''
               : `<td class="px-6 py-4 text-center">
                 <div class="flex items-center justify-center gap-2">
-                  <button onclick="saveRowReportChange(${index})" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" title="Simpan baris ini">
+                  <button id="btnSaveRow-${index}" onclick="withBtnIconLoading(this, () => saveRowReportChange(${index}))" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" title="Simpan baris ini">
                     <i data-lucide="save" class="w-4 h-4"></i>
                   </button>
-                  <button onclick="sendSingleWA(${index})" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all" title="Kirim WA">
+                  <button id="btnSendWaRow-${index}" onclick="withBtnIconLoading(this, () => sendSingleWA(${index}))" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all" title="Kirim WA">
                     <i data-lucide="send" class="w-4 h-4"></i>
                   </button>
                 </div>
@@ -2266,7 +2267,7 @@
         return;
       }
 
-      await withBtnLoading(document.getElementById('btnRekapTampilkan'), async () => {
+      await withBtnIconLoading(document.getElementById('btnRekapTampilkan'), async () => {
         const response = await apiRequest('getMonthlyReport', { month, year, classGroup });
         if (response.success) {
           lastLoadedHolidays = response.holidays || [];
@@ -2511,9 +2512,9 @@
       const btn = document.getElementById('holidaySubmitBtn');
       let response;
       if (editId) {
-        response = await withBtnLoading(btn, () => apiRequest('updateHoliday', { id: editId, data: { name, startDate, endDate } }));
+        response = await withBtnIconLoading(btn, () => apiRequest('updateHoliday', { id: editId, data: { name, startDate, endDate } }));
       } else {
-        response = await withBtnLoading(btn, () => apiRequest('addHoliday', { data: { name, startDate, endDate } }));
+        response = await withBtnIconLoading(btn, () => apiRequest('addHoliday', { data: { name, startDate, endDate } }));
       }
       if (response.success) {
         showAlert('Berhasil', response.message, 'success');
@@ -2558,7 +2559,7 @@
       const Timezone = document.getElementById('settingTimezone').value;
       const WorkDays = document.getElementById('settingWorkDays').value;
 
-      await withBtnLoading(document.getElementById('btnSaveSettings'), async () => {
+      await withBtnIconLoading(document.getElementById('btnSaveSettings'), async () => {
         const response = await apiRequest('saveSettings', {
           data: { SchoolName, SchoolLogo, FonnteApiKey, Timezone, WorkDays }
         });
