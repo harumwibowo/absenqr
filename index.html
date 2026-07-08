@@ -632,7 +632,6 @@
                       <th class="px-6 py-4">Datang</th>
                       <th class="px-6 py-4">Pulang</th>
                       <th class="px-6 py-4">Keterangan</th>
-                      <th class="px-6 py-4">Status Pesan</th>
                       <th id="laporanAksiHeader" class="px-6 py-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -2179,7 +2178,7 @@
       const isReadOnly = currentUser && currentUser.role === 'Kepala Sekolah';
 
       if (dailyReportData.length === 0) {
-        const colSpan = isReadOnly ? '7' : '8';
+        const colSpan = isReadOnly ? '6' : '7';
         tbody.innerHTML = `<tr><td colspan="${colSpan}" class="px-6 py-8 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
         return;
       }
@@ -2189,11 +2188,6 @@
         if (row.status === "Hadir") statusBg = "bg-emerald-100 text-emerald-800 border-emerald-200";
         if (row.status === "Sakit") statusBg = "bg-amber-100 text-amber-800 border-amber-200";
         if (row.status === "Izin") statusBg = "bg-blue-100 text-blue-800 border-blue-200";
-
-        let pesanBadge = "bg-slate-100 text-slate-600 border-slate-200";
-        const statusPesanStr = row.statusPesan || "Belum Terkirim";
-        if(statusPesanStr.startsWith("Berhasil")) pesanBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
-        if(statusPesanStr === "Gagal") pesanBadge = "bg-rose-100 text-rose-800 border-rose-200";
 
         const datangTime = row.time && row.time !== "-" ? row.time : "-";
         const pulangTime = row.pulangTime && row.pulangTime !== "-" ? row.pulangTime : "-";
@@ -2234,16 +2228,16 @@
                 : `<input type="text" value="${row.keterangan || ''}" onchange="updateRowKeteranganLocal(${index}, this.value)" placeholder="Tulis catatan..." class="px-3 py-1.5 w-full border border-slate-200 rounded-xl text-xs focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">`
               }
             </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold border ${pesanBadge}">${statusPesanStr}</span>
-            </td>
             ${isReadOnly ? ''
               : `<td class="px-6 py-4 text-center">
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-1">
                   <button id="btnSaveRow-${index}" onclick="withBtnIconLoading(this, () => saveRowReportChange(${index}))" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" title="Simpan baris ini">
                     <i data-lucide="save" class="w-4 h-4"></i>
                   </button>
-                  <button id="btnSendWaRow-${index}" onclick="withBtnIconLoading(this, () => sendSingleWA(${index}))" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all" title="Kirim WA">
+                  <button id="btnWaDatang-${index}" onclick="withBtnIconLoading(this, () => sendAttendanceWA(${index}, 'Datang'))" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all ${row.statusPesanDatang === 'Terkirim' ? 'opacity-50 cursor-not-allowed' : ''}" title="${row.statusPesanDatang === 'Terkirim' ? 'WA Datang sudah terkirim' : 'Kirim WA Datang'}">
+                    <i data-lucide="send" class="w-4 h-4"></i>
+                  </button>
+                  <button id="btnWaPulang-${index}" onclick="withBtnIconLoading(this, () => sendAttendanceWA(${index}, 'Pulang'))" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition-all ${row.statusPesanPulang === 'Terkirim' ? 'opacity-50 cursor-not-allowed' : ''}" title="${row.statusPesanPulang === 'Terkirim' ? 'WA Pulang sudah terkirim' : 'Kirim WA Pulang'}">
                     <i data-lucide="send" class="w-4 h-4"></i>
                   </button>
                 </div>
@@ -2293,13 +2287,14 @@
       }
     }
 
-    async function sendSingleWA(index) {
+    async function sendAttendanceWA(index, jenis) {
       if (isReadOnlyLaporan()) { showAlert('Akses Ditolak', 'Halaman ini hanya bisa diedit oleh Admin atau Guru saja', 'warning'); return; }
       const item = dailyReportData[index];
       const dateStr = document.getElementById('laporanDate').value;
 
-      if (item.statusPesan && item.statusPesan.startsWith('Berhasil')) {
-        showAlert('Sudah Terkirim', 'Pesan sudah pernah dikirim di hari ini.', 'warning');
+      const statusPesanField = jenis === 'Pulang' ? 'statusPesanPulang' : 'statusPesanDatang';
+      if (item[statusPesanField] === 'Terkirim') {
+        showAlert('Sudah Terkirim', 'Pesan ' + jenis + ' sudah pernah dikirim.', 'warning');
         return;
       }
 
@@ -2308,16 +2303,17 @@
         return;
       }
 
-      const response = await apiRequest('sendFonnteWhatsApp', {
+      const response = await apiRequest('sendAttendanceNotification', {
         studentId: item.studentId,
         dateStr: dateStr,
-        status: item.status,
-        keterangan: item.keterangan,
-        time: item.time
+        jenisAbsen: jenis,
+        time: jenis === 'Pulang' ? item.pulangTime : item.time,
+        status: jenis === 'Pulang' ? item.pulangStatus2 : item.status,
+        keterangan: item.keterangan
       });
 
       if (response.success) {
-        showAlert('WA Terkirim', `Notifikasi absensi untuk ${item.name} berhasil dikirim via Fonnte.`, 'success');
+        showAlert('WA Terkirim', 'Notifikasi absen ' + jenis + ' untuk ' + item.name + ' berhasil dikirim.', 'success');
         loadDailyReport();
       } else {
         showAlert('Gagal Kirim WA', response.message, 'error');
