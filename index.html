@@ -625,15 +625,16 @@
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm">
                 <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-100">
-                  <tr>
-                    <th class="px-6 py-4">ID Siswa</th>
-                    <th class="px-6 py-4">Nama Siswa</th>
-                    <th class="px-6 py-4">Status Kehadiran</th>
-                    <th class="px-6 py-4">Jam Absen</th>
-                    <th class="px-6 py-4">Keterangan</th>
-                    <th class="px-6 py-4">Status Pesan</th>
-                    <th id="laporanAksiHeader" class="px-6 py-4 text-center">Aksi</th>
-                  </tr>
+                    <tr>
+                      <th class="px-6 py-4">ID Siswa</th>
+                      <th class="px-6 py-4">Nama Siswa</th>
+                      <th class="px-6 py-4">Status Kehadiran</th>
+                      <th class="px-6 py-4">Datang</th>
+                      <th class="px-6 py-4">Pulang</th>
+                      <th class="px-6 py-4">Keterangan</th>
+                      <th class="px-6 py-4">Status Pesan</th>
+                      <th id="laporanAksiHeader" class="px-6 py-4 text-center">Aksi</th>
+                    </tr>
                 </thead>
                 <tbody id="laporanTableBody" class="divide-y divide-slate-100">
                   <tr>
@@ -2170,7 +2171,7 @@
       const isReadOnly = currentUser && currentUser.role === 'Kepala Sekolah';
 
       if (dailyReportData.length === 0) {
-        const colSpan = isReadOnly ? '5' : '7';
+        const colSpan = isReadOnly ? '7' : '8';
         tbody.innerHTML = `<tr><td colspan="${colSpan}" class="px-6 py-8 text-center text-slate-400">Tidak ada data siswa untuk kelas ini.</td></tr>`;
         return;
       }
@@ -2186,13 +2187,20 @@
         if(statusPesanStr.startsWith("Berhasil")) pesanBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
         if(statusPesanStr === "Gagal") pesanBadge = "bg-rose-100 text-rose-800 border-rose-200";
 
-        const displayTime = row.time ? row.time : "-";
+        const datangTime = row.time && row.time !== "-" ? row.time : "-";
+        const pulangTime = row.pulangTime && row.pulangTime !== "-" ? row.pulangTime : "-";
+        
+        const status2 = row.status2 || "";
+        const pulangStatus2 = row.pulangStatus2 || "";
+        const showStatus2 = (status2 === 'Terlambat' || status2 === 'Pulang Cepat') ? status2 : '';
+        const showPulangStatus2 = (pulangStatus2 === 'Terlambat' || pulangStatus2 === 'Pulang Cepat') ? pulangStatus2 : '';
 
         tbody.innerHTML += `
           <tr class="hover:bg-slate-50/50 transition-colors">
             <td class="px-6 py-4 font-mono text-xs font-semibold text-slate-700">${row.studentId}</td>
             <td class="px-6 py-4 font-semibold text-slate-900">${row.name}</td>
             <td class="px-6 py-4">
+              <div>
               ${isReadOnly
                 ? `<span class="inline-block px-3 py-1.5 rounded-xl text-xs font-bold border ${statusBg}">${row.status || 'Alpa'}</span>`
                 : `<select onchange="updateRowStatusLocal(${index}, this.value)" class="px-3 py-1.5 rounded-xl text-xs font-bold border ${statusBg} focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -2202,8 +2210,11 @@
                     <option value="Alpa" ${row.status === 'Alpa' ? 'selected' : ''}>Alpa</option>
                   </select>`
               }
+              ${showStatus2 ? `<div class="text-rose-600 text-[10px] font-bold mt-1">${showStatus2}</div>` : ''}
+              </div>
             </td>
-            <td class="px-6 py-4 font-mono text-xs text-slate-600 font-semibold">${displayTime}</td>
+            <td class="px-6 py-4 font-mono text-xs text-slate-600 font-semibold">${datangTime}</td>
+            <td class="px-6 py-4 font-mono text-xs text-slate-600 font-semibold">${pulangTime}</td>
             <td class="px-6 py-4">
               ${isReadOnly
                 ? `<span class="px-3 py-1.5 inline-block text-xs text-slate-600">${row.keterangan || '-'}</span>`
