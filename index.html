@@ -1148,9 +1148,11 @@
         populateRekapMonthOptions();
         fetchStudents().then(() => populateRekapClassOptions());
       } else if (pageName === 'pengaturan') {
-        loadSettingsForm();
-        loadHolidays();
-        loadJamSettings();
+        // Tunggu settings form selesai load sebelum jam settings
+        Promise.all([loadSettingsForm(), loadHolidays()]).then(() => {
+          loadJamSettings();
+          toggleSabtuColumn();
+        });
       }
     }
 
@@ -2752,9 +2754,12 @@
     }
 
     function toggleSabtuColumn() {
-      const workDays = document.getElementById('settingWorkDays').value;
+      const select = document.getElementById('settingWorkDays');
+      if (!select) return;
+      const workDays = select.value;
       const sabtuCols = document.querySelectorAll('.jamSabtuCol');
       const sabtuHeader = document.getElementById('jamSabtuHeader');
+      if (!sabtuHeader) return;
       
       if (workDays === '5') {
         sabtuHeader.classList.add('hidden');
@@ -2765,7 +2770,13 @@
       }
     }
 
-    document.getElementById('settingWorkDays').addEventListener('change', toggleSabtuColumn);
+    // Setup event listener saat halaman dimuat
+    window.addEventListener('load', () => {
+      const workDaysSelect = document.getElementById('settingWorkDays');
+      if (workDaysSelect) {
+        workDaysSelect.addEventListener('change', toggleSabtuColumn);
+      }
+    });
 
     async function saveJamSettings() {
       const tbody = document.getElementById('jamTableBody');
