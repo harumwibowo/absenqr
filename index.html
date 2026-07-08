@@ -2044,8 +2044,8 @@
 
       apiRequest('submitAttendance', { studentId: decodedText, jenisAbsen: jenisAbsen }).then(response => {
         if (response.success) {
-          const statusText = response.log.status === 'Terlambat' ? 'Terlambat' : 'Tepat Waktu';
-          showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) absen ${jenisAbsen} pada pukul ${response.log.time}. Status: ${statusText}`, 'success');
+          const displayStatus = response.log.displayStatus || (response.log.status === 'Terlambat' ? 'Terlambat' : 'Tepat Waktu');
+          showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) absen ${jenisAbsen} pada pukul ${response.log.time}. Status: ${displayStatus}`, 'success');
           
           const refreshBtn = document.getElementById('btnRefreshLog');
           withBtnIconLoading(refreshBtn, async () => {
@@ -2099,7 +2099,7 @@
       }
 
       attendanceLogs.forEach(log => {
-        const isLate = log.status === 'Terlambat' || log.status === 'Pulang Awal';
+        const isLate = log.status === 'Terlambat' || log.status === 'Pulang Cepat';
         const timeColor = isLate ? 'text-rose-600' : 'text-emerald-600';
         const timeBg = isLate ? 'bg-rose-50' : 'bg-emerald-50';
         logContainer.innerHTML += `
