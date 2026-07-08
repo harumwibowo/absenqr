@@ -2045,8 +2045,7 @@
 
       apiRequest('submitAttendance', { studentId: decodedText, jenisAbsen: jenisAbsen }).then(response => {
         if (response.success) {
-          const displayStatus = response.log.displayStatus || (response.log.status === 'Terlambat' ? 'Terlambat' : 'Tepat Waktu');
-          showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) absen ${jenisAbsen} pada pukul ${response.log.time}. Status: ${displayStatus}`, 'success');
+          showAlert('Berhasil', response.message, 'success');
           
           const refreshBtn = document.getElementById('btnRefreshLog');
           withBtnIconLoading(refreshBtn, async () => {
@@ -2058,7 +2057,7 @@
           if (response.studentName) {
             showAlert('Sudah Absen!', response.message, 'error');
           } else {
-            showAlert('Gagal Absen', response.message, 'error');
+            showAlert('Gagal', response.message, 'error');
           }
           updateScanStatus('Ditolak', 'bg-rose-500/10 text-rose-400');
         }
