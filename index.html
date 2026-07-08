@@ -614,9 +614,13 @@
                 <i data-lucide="search" class="w-4 h-4"></i>
                 Tampilkan
               </button>
-              <button id="bulkWaBtn" onclick="withBtnIconLoading(this, () => sendBulkWA())" class="w-full md:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+              <button id="bulkWaDatangBtn" onclick="withBtnIconLoading(this, () => sendBulkWADatang())" class="w-full md:w-auto px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
                 <i data-lucide="send" class="w-4 h-4"></i>
-                Kirim WA Semua
+                Kirim WA Datang
+              </button>
+              <button id="bulkWaPulangBtn" onclick="withBtnIconLoading(this, () => sendBulkWAPulang())" class="w-full md:w-auto px-6 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                Kirim WA Pulang
               </button>
             </div>
           </div>
@@ -2234,7 +2238,7 @@
                   <button id="btnSaveRow-${index}" onclick="withBtnIconLoading(this, () => saveRowReportChange(${index}))" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all" title="Simpan baris ini">
                     <i data-lucide="save" class="w-4 h-4"></i>
                   </button>
-                  <button id="btnWaDatang-${index}" onclick="withBtnIconLoading(this, () => sendAttendanceWA(${index}, 'Datang'))" class="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-xl transition-all ${row.statusPesanDatang === 'Terkirim' ? 'opacity-50 cursor-not-allowed' : ''}" title="${row.statusPesanDatang === 'Terkirim' ? 'WA Datang sudah terkirim' : 'Kirim WA Datang'}">
+                  <button id="btnWaDatang-${index}" onclick="withBtnIconLoading(this, () => sendAttendanceWA(${index}, 'Datang'))" class="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all ${row.statusPesanDatang === 'Terkirim' ? 'opacity-50 cursor-not-allowed' : ''}" title="${row.statusPesanDatang === 'Terkirim' ? 'WA Datang sudah terkirim' : 'Kirim WA Datang'}">
                     <i data-lucide="send" class="w-4 h-4"></i>
                   </button>
                   <button id="btnWaPulang-${index}" onclick="withBtnIconLoading(this, () => sendAttendanceWA(${index}, 'Pulang'))" class="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl transition-all ${row.statusPesanPulang === 'Terkirim' ? 'opacity-50 cursor-not-allowed' : ''}" title="${row.statusPesanPulang === 'Terkirim' ? 'WA Pulang sudah terkirim' : 'Kirim WA Pulang'}">
@@ -2320,33 +2324,60 @@
       }
     }
 
-    async function sendBulkWA() {
+    async function sendBulkWADatang() {
       if (isReadOnlyLaporan()) { showAlert('Akses Ditolak', 'Halaman ini hanya bisa diedit oleh Admin atau Guru saja', 'warning'); return; }
       if (dailyReportData.length === 0) {
-        showAlert('Batal', 'Tabel data rekap kosong. Tampilkan rekap kelas terlebih dahulu.', 'error');
-        return;
-      }
-
-      const toSend = dailyReportData.filter(item => !(item.statusPesan && item.statusPesan.startsWith('Berhasil')));
-      if(toSend.length === 0) {
-        showAlert('Selesai', 'Semua pesan sudah terkirim. Tidak ada siswa yang perlu dikirim WA lagi.', 'info');
+        showAlert('Batal', 'Tampilkan data rekap terlebih dahulu.', 'error');
         return;
       }
 
       const dateStr = document.getElementById('laporanDate').value;
-      if (confirm(`Apakah Anda yakin ingin mengirim notifikasi WhatsApp Fonnte massal ke ${toSend.length} siswa di tabel ini?`)) {
-        const response = await apiRequest('sendBulkFonnteWhatsApp', {
-          studentsArray: toSend,
-          dateStr: dateStr
-        });
-
-        if (response.success) {
-          showAlert('Proses Kirim Selesai', response.message, 'success');
-          loadDailyReport();
-        } else {
-          showAlert('Gagal Massal', response.message, 'error');
-        }
+      const toSend = dailyReportData.filter(item => item.statusPesanDatang !== 'Terkirim' && item.phone);
+      if (toSend.length === 0) {
+        showAlert('Selesai', 'Semua pesan WA Datang sudah terkirim.', 'info');
+        return;
       }
+
+      if (!confirm(`Kirim notifikasi absen DATANG ke ${toSend.length} siswa?`)) return;
+
+      let sent = 0, failed = 0;
+      for (const item of toSend) {
+        const res = await apiRequest('sendAttendanceNotification', {
+          studentId: item.studentId, dateStr, jenisAbsen: 'Datang',
+          time: item.time, status: item.status, keterangan: item.keterangan
+        });
+        if (res.success) sent++; else failed++;
+      }
+      showAlert('Selesai', `WA Datang: ${sent} terkirim, ${failed} gagal.`, failed > 0 ? 'error' : 'success');
+      loadDailyReport();
+    }
+
+    async function sendBulkWAPulang() {
+      if (isReadOnlyLaporan()) { showAlert('Akses Ditolak', 'Halaman ini hanya bisa diedit oleh Admin atau Guru saja', 'warning'); return; }
+      if (dailyReportData.length === 0) {
+        showAlert('Batal', 'Tampilkan data rekap terlebih dahulu.', 'error');
+        return;
+      }
+
+      const dateStr = document.getElementById('laporanDate').value;
+      const toSend = dailyReportData.filter(item => item.statusPesanPulang !== 'Terkirim' && item.phone && item.pulangTime && item.pulangTime !== '-');
+      if (toSend.length === 0) {
+        showAlert('Selesai', 'Semua pesan WA Pulang sudah terkirim.', 'info');
+        return;
+      }
+
+      if (!confirm(`Kirim notifikasi absen PULANG ke ${toSend.length} siswa?`)) return;
+
+      let sent = 0, failed = 0;
+      for (const item of toSend) {
+        const res = await apiRequest('sendAttendanceNotification', {
+          studentId: item.studentId, dateStr, jenisAbsen: 'Pulang',
+          time: item.pulangTime, status: item.pulangStatus2, keterangan: item.keterangan
+        });
+        if (res.success) sent++; else failed++;
+      }
+      showAlert('Selesai', `WA Pulang: ${sent} terkirim, ${failed} gagal.`, failed > 0 ? 'error' : 'success');
+      loadDailyReport();
     }
 
 
