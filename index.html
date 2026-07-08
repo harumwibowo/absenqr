@@ -1132,8 +1132,11 @@
         
         // Setup onchange handler untuk dropdown jenis absen
         const jenisAbsenSelect = document.getElementById('jenisAbsenSelect');
-        jenisAbsenSelect.onchange = () => {
-          fetchAttendanceLogs();
+        jenisAbsenSelect.onchange = async () => {
+          const refreshBtn = document.getElementById('btnRefreshLog');
+          await withBtnIconLoading(refreshBtn, async () => {
+            await fetchAttendanceLogs();
+          });
         };
       } else if (pageName === 'laporan') {
         const today = new Date();
@@ -2765,11 +2768,11 @@
     document.getElementById('settingWorkDays').addEventListener('change', toggleSabtuColumn);
 
     async function saveJamSettings() {
-      const rows = [];
       const tbody = document.getElementById('jamTableBody');
       const trows = tbody.querySelectorAll('tr');
+      const rows = [];
       
-      trows.forEach((tr, index) => {
+      trows.forEach((tr) => {
         const jenis = tr.querySelector('.jamJenis').value;
         const jam = tr.querySelector('.jamWaktu').value;
         const senin = tr.querySelector('.jamSenin').checked ? 'Y' : '';
@@ -2777,16 +2780,24 @@
         const rabu = tr.querySelector('.jamRabu').checked ? 'Y' : '';
         const kamis = tr.querySelector('.jamKamis').checked ? 'Y' : '';
         const jumat = tr.querySelector('.jamJumat').checked ? 'Y' : '';
-        const sabtu = tr.querySelector('.jamSabtu').checked ? 'Y' : '';
+        const sabtu = tr.querySelector('.jamSabtu') ? (tr.querySelector('.jamSabtu').checked ? 'Y' : '') : '';
         
-        rows.push({ jenisAbsen: jenis, jam, senin, selasa, rabu, kamis, jumat, sabtu });
+        if (jam) {
+          rows.push({ jenisAbsen: jenis, jam, senin, selasa, rabu, kamis, jumat, sabtu });
+        }
       });
+      
+      if (rows.length === 0) {
+        showAlert('Gagal', 'Isi minimal satu baris jam absen.', 'error');
+        return;
+      }
       
       await withBtnIconLoading(document.getElementById('btnSaveJam'), async () => {
         const response = await apiRequest('saveJamSettings', { data: rows });
         if (response.success) {
           showAlert('Berhasil', response.message, 'success');
-          loadJamSettings();
+          jamRows = rows;
+          renderJamTable();
         } else {
           showAlert('Gagal', response.message, 'error');
         }
