@@ -522,7 +522,7 @@
                   <h3 class="font-bold text-white text-lg">Kamera Scan QR</h3>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-                  <select id="jenisAbsenSelect" class="w-full sm:w-32 bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-indigo-500">
+                  <select id="jenisAbsenSelect" onchange="updateJenisAbsenStyle(this)" class="w-full sm:w-32 bg-emerald-600 border border-emerald-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-emerald-500">
                     <option value="Datang">Datang</option>
                     <option value="Pulang">Pulang</option>
                   </select>
@@ -1111,6 +1111,7 @@
         // Setup onchange handler untuk dropdown jenis absen
         const jenisAbsenSelect = document.getElementById('jenisAbsenSelect');
         jenisAbsenSelect.onchange = async () => {
+          updateJenisAbsenStyle(jenisAbsenSelect);
           updateTargetJamLabel();
           const refreshBtn = document.getElementById('btnRefreshLog');
           await withBtnIconLoading(refreshBtn, async () => {
@@ -1914,6 +1915,14 @@
       if (resp.success) {
         scanJamSettings = resp.data;
         updateTargetJamLabel();
+      }
+    }
+
+    function updateJenisAbsenStyle(select) {
+      if (select.value === 'Datang') {
+        select.className = 'w-full sm:w-32 bg-emerald-600 border border-emerald-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-emerald-500';
+      } else {
+        select.className = 'w-full sm:w-32 bg-rose-600 border border-rose-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-rose-500';
       }
     }
 
