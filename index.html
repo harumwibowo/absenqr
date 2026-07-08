@@ -2210,7 +2210,8 @@
                     <option value="Alpa" ${row.status === 'Alpa' ? 'selected' : ''}>Alpa</option>
                   </select>`
               }
-              ${showStatus2 ? `<div class="text-rose-600 text-[10px] font-bold mt-1">${showStatus2}</div>` : ''}
+              ${showStatus2 ? `<div class="text-rose-600 text-[10px] font-bold mt-1">Datang: ${showStatus2}</div>` : ''}
+              ${(row.pulangStatus2 && row.pulangStatus2 !== 'Tepat Waktu') ? `<div class="text-rose-600 text-[10px] font-bold">Pulang: ${row.pulangStatus2}</div>` : ''}
               </div>
             </td>
             <td class="px-6 py-4 font-mono text-xs text-slate-600 font-semibold">${datangTime}</td>
