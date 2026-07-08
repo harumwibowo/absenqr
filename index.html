@@ -172,15 +172,6 @@
         </button>
       </div>
 
-      <!-- Informasi Pengguna Login -->
-      <div class="p-4 mx-4 mt-4 bg-indigo-900/30 rounded-2xl border border-indigo-900 flex items-center gap-3 shrink-0">
-        <div class="w-10 h-10 bg-gradient-to-tr from-amber-400 to-orange-500 rounded-full flex items-center justify-center font-bold text-white shadow-md uppercase" id="avatarLetter">A</div>
-        <div class="overflow-hidden">
-          <h4 class="font-semibold text-white text-sm truncate" id="sideUserFullName">Nama Pengguna</h4>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-300" id="sideUserRole">Admin</span>
-        </div>
-      </div>
-
       <!-- Menu Navigasi -->
       <nav class="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
         <!-- Dashboard Link -->
@@ -1302,13 +1293,10 @@
       document.getElementById('loginPage').classList.add('hidden');
       document.getElementById('appDashboard').classList.remove('hidden');
       
-      document.getElementById('sideUserFullName').textContent = currentUser.fullName;
-      document.getElementById('sideUserRole').textContent = currentUser.role;
       document.getElementById('headerUserName').textContent = currentUser.fullName;
       document.getElementById('headerUserRole').textContent = currentUser.role;
       document.getElementById('headerAvatarLetter').textContent = currentUser.fullName.charAt(0).toUpperCase();
       document.getElementById('dashWelcomeName').textContent = currentUser.fullName;
-      document.getElementById('avatarLetter').textContent = currentUser.fullName.charAt(0).toUpperCase();
 
       const role = currentUser.role;
       const masterMenu = document.getElementById('masterMenuContainer');
