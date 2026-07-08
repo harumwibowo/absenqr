@@ -1100,6 +1100,7 @@
         initCameraDevices();
         fetchAttendanceLogs();
         if (allHolidays.length === 0) loadHolidays();
+        loadJamSettingsForScan();
         
         // Setup onchange handler untuk dropdown jenis absen
         const jenisAbsenSelect = document.getElementById('jenisAbsenSelect');
@@ -1899,6 +1900,13 @@
       });
     }
 
+    let scanJamSettings = [];
+
+    async function loadJamSettingsForScan() {
+      const resp = await apiRequest('getJamSettings');
+      if (resp.success) scanJamSettings = resp.data;
+    }
+
     function isTodayHoliday() {
       const now = new Date();
       const dayOfWeek = now.getDay();
@@ -1912,6 +1920,13 @@
       return false;
     }
 
+    function isTodayHasJamSchedule() {
+      const jenis = document.getElementById('jenisAbsenSelect').value;
+      const dayNames = ['', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+      const todayDay = dayNames[new Date().getDay()];
+      return scanJamSettings.some(s => s.jenisAbsen === jenis && s[todayDay] === 'Y');
+    }
+
     function toggleScanner() {
       if (isScanning) {
         stopScanner();
@@ -1923,6 +1938,11 @@
     function startScanner() {
       if (isTodayHoliday()) {
         showAlert('Hari Libur', 'Tidak dapat absen hari ini karena libur', 'warning');
+        return;
+      }
+      const jenis = document.getElementById('jenisAbsenSelect').value;
+      if (scanJamSettings.length > 0 && !isTodayHasJamSchedule()) {
+        showAlert('Tidak Ada Jadwal', 'Tidak ada jadwal absen ' + jenis + ' untuk hari ini.', 'warning');
         return;
       }
       if (!currentCameraId) {
@@ -2062,18 +2082,18 @@
       }
 
       attendanceLogs.forEach(log => {
-        const statusColor = log.status === 'Terlambat' ? 'text-rose-600' : 'text-emerald-600';
-        const statusBg = log.status === 'Terlambat' ? 'bg-rose-50' : 'bg-emerald-50';
+        const isLate = log.status === 'Terlambat' || log.status === 'Pulang Awal';
+        const timeColor = isLate ? 'text-rose-600' : 'text-emerald-600';
+        const timeBg = isLate ? 'bg-rose-50' : 'bg-emerald-50';
         logContainer.innerHTML += `
           <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
             <div class="space-y-1 overflow-hidden pr-4">
               <h4 class="font-bold text-slate-900 text-sm truncate">${log.name}</h4>
               <p class="text-xs text-slate-500 font-medium">${log.classGroup} • ID: ${log.studentId}</p>
-              <span class="inline-flex items-center text-xs font-bold ${statusColor} ${statusBg} px-2 py-0.5 rounded-lg">${log.status}</span>
             </div>
             <div class="text-right shrink-0">
-              <span class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">
-                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
+              <span class="inline-flex items-center gap-1 text-xs font-bold ${timeColor} ${timeBg} px-2 py-1 rounded-lg">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
                 ${log.time}
               </span>
               <span class="block text-[10px] text-slate-400 font-semibold mt-1">${log.date}</span>
