@@ -262,8 +262,11 @@
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <span class="text-[10px] md:text-xs text-slate-500 font-medium" id="headerSchoolLabel">Memuat...</span>
-          <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+          <div class="text-right hidden sm:block">
+            <p class="text-xs font-semibold text-slate-900 leading-tight" id="headerUserName"></p>
+            <p class="text-[10px] text-slate-500" id="headerUserRole"></p>
+          </div>
+          <div class="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-sm shrink-0" id="headerAvatarLetter"></div>
         </div>
       </header>
 
@@ -1010,8 +1013,6 @@
       const name = currentSettings.SchoolName || "SMA Negeri 1 Kita";
       document.getElementById('loginSchoolLabel').textContent = name;
       document.getElementById('sidebarSchoolName').textContent = name.toUpperCase();
-      document.getElementById('headerSchoolLabel').textContent = `Server: ${name}`;
-
       if(currentSettings.SchoolLogo) {
         const logoUrl = currentSettings.SchoolLogo;
         const img = `<img src="${logoUrl}" class="w-full h-full object-cover rounded-2xl" />`;
@@ -1303,6 +1304,9 @@
       
       document.getElementById('sideUserFullName').textContent = currentUser.fullName;
       document.getElementById('sideUserRole').textContent = currentUser.role;
+      document.getElementById('headerUserName').textContent = currentUser.fullName;
+      document.getElementById('headerUserRole').textContent = currentUser.role;
+      document.getElementById('headerAvatarLetter').textContent = currentUser.fullName.charAt(0).toUpperCase();
       document.getElementById('dashWelcomeName').textContent = currentUser.fullName;
       document.getElementById('avatarLetter').textContent = currentUser.fullName.charAt(0).toUpperCase();
 
@@ -1326,18 +1330,21 @@
         scanMenu.classList.remove('hidden');
         laporanMenu.classList.remove('hidden');
         document.getElementById('laporanAksiHeader').classList.remove('hidden');
-        document.getElementById('bulkWaBtn').classList.remove('hidden');
+        document.getElementById('bulkWaDatangBtn').classList.remove('hidden');
+        document.getElementById('bulkWaPulangBtn').classList.remove('hidden');
       } else if (role === 'Siswa') {
         generateQrMenu.classList.remove('hidden');
       } else if (role === 'Kepala Sekolah') {
         laporanMenu.classList.remove('hidden');
         document.getElementById('laporanAksiHeader').classList.add('hidden');
-        document.getElementById('bulkWaBtn').classList.add('hidden');
+        document.getElementById('bulkWaDatangBtn').classList.add('hidden');
+        document.getElementById('bulkWaPulangBtn').classList.add('hidden');
       } else {
         scanMenu.classList.remove('hidden');
         laporanMenu.classList.remove('hidden');
         document.getElementById('laporanAksiHeader').classList.remove('hidden');
-        document.getElementById('bulkWaBtn').classList.remove('hidden');
+        document.getElementById('bulkWaDatangBtn').classList.remove('hidden');
+        document.getElementById('bulkWaPulangBtn').classList.remove('hidden');
       }
 
       initSidebarState();
