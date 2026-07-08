@@ -559,6 +559,11 @@
                     <span class="text-xs text-slate-400 block font-medium">Jam Sistem</span>
                     <span id="liveClock" class="font-bold text-white text-lg tracking-wider">00:00:00</span>
                   </div>
+                  <div class="h-8 w-px bg-slate-800 mx-2"></div>
+                  <div>
+                    <span class="text-xs text-slate-400 block font-medium">Jam Jadwal</span>
+                    <span id="targetJamLabel" class="font-bold text-indigo-300 text-lg tracking-wider">-</span>
+                  </div>
                 </div>
                 <div class="text-center sm:text-right">
                   <span class="text-xs text-slate-400 block font-medium">Status Pindai Terakhir</span>
@@ -1100,11 +1105,12 @@
         initCameraDevices();
         fetchAttendanceLogs();
         if (allHolidays.length === 0) loadHolidays();
-        loadJamSettingsForScan();
+        loadJamSettingsForScan().then(() => updateTargetJamLabel());
         
         // Setup onchange handler untuk dropdown jenis absen
         const jenisAbsenSelect = document.getElementById('jenisAbsenSelect');
         jenisAbsenSelect.onchange = async () => {
+          updateTargetJamLabel();
           const refreshBtn = document.getElementById('btnRefreshLog');
           await withBtnIconLoading(refreshBtn, async () => {
             await fetchAttendanceLogs();
@@ -1904,7 +1910,18 @@
 
     async function loadJamSettingsForScan() {
       const resp = await apiRequest('getJamSettings');
-      if (resp.success) scanJamSettings = resp.data;
+      if (resp.success) {
+        scanJamSettings = resp.data;
+        updateTargetJamLabel();
+      }
+    }
+
+    function updateTargetJamLabel() {
+      const jenis = document.getElementById('jenisAbsenSelect').value;
+      const dayNames = ['', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+      const todayDay = dayNames[new Date().getDay()];
+      const jadwal = scanJamSettings.find(s => s.jenisAbsen === jenis && s[todayDay] === 'Y');
+      document.getElementById('targetJamLabel').textContent = jadwal ? jenis + ' ' + jadwal.jam : '-';
     }
 
     function isTodayHoliday() {
