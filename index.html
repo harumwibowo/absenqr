@@ -522,6 +522,10 @@
                   <h3 class="font-bold text-white text-lg">Kamera Scan QR</h3>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                  <select id="jenisAbsenSelect" class="w-full sm:w-32 bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-indigo-500">
+                    <option value="Datang">Datang</option>
+                    <option value="Pulang">Pulang</option>
+                  </select>
                   <select id="cameraSelect" class="w-full sm:w-48 bg-slate-800 border border-slate-700 text-white rounded-xl px-3 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-indigo-500">
                     <option value="">Mencari Kamera...</option>
                   </select>
@@ -726,6 +730,42 @@
               </form>
             </div>
 
+            <!-- Area Pengaturan Jam -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+              <div class="flex items-center gap-2 border-b border-slate-100 pb-4">
+                <i data-lucide="clock" class="w-5 h-5 text-indigo-600"></i>
+                <h3 class="font-bold text-slate-900 text-lg">Pengaturan Jam Absen</h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                  <thead class="bg-slate-50 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-100">
+                    <tr>
+                      <th class="px-3 py-3">Jenis Absen</th>
+                      <th class="px-3 py-3">Jam (HH:MM)</th>
+                      <th class="px-3 py-3 text-center">Senin</th>
+                      <th class="px-3 py-3 text-center">Selasa</th>
+                      <th class="px-3 py-3 text-center">Rabu</th>
+                      <th class="px-3 py-3 text-center">Kamis</th>
+                      <th class="px-3 py-3 text-center">Jumat</th>
+                      <th id="jamSabtuHeader" class="px-3 py-3 text-center">Sabtu</th>
+                      <th class="px-3 py-3 text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="jamTableBody" class="divide-y divide-slate-100">
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex items-center justify-between pt-2">
+                <button onclick="addJamRow()" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 text-sm font-semibold">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                  Tambah Baris
+                </button>
+                <button id="btnSaveJam" onclick="saveJamSettings()" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition-all text-sm">
+                  Simpan Jam
+                </button>
+              </div>
+            </div>
+
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
               <div class="flex items-center gap-2 border-b border-slate-100 pb-4">
                 <i data-lucide="calendar-off" class="w-5 h-5 text-indigo-600"></i>
@@ -775,6 +815,36 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+              <div class="flex items-center gap-2 border-b border-slate-100 pb-4">
+                <i data-lucide="clock" class="w-5 h-5 text-indigo-600"></i>
+                <h3 class="font-bold text-slate-900 text-lg">Pengaturan Jam Absensi</h3>
+              </div>
+              <form id="jamForm" onsubmit="handleSaveJam(event)" class="space-y-5">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Jam Datang</label>
+                  <input type="time" id="jamDatang" required class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Toleransi Datang (Menit)</label>
+                  <input type="number" id="toleransiDatang" min="0" required class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Jam Pulang</label>
+                  <input type="time" id="jamPulang" required class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-1.5">Toleransi Pulang (Menit)</label>
+                  <input type="number" id="toleransiPulang" min="0" required class="block w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 text-sm">
+                </div>
+                <div class="pt-2">
+                  <button id="btnSaveJam" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-md transition-all text-sm">
+                    Simpan Jam Absensi
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
@@ -1059,6 +1129,12 @@
         initCameraDevices();
         fetchAttendanceLogs();
         if (allHolidays.length === 0) loadHolidays();
+        
+        // Setup onchange handler untuk dropdown jenis absen
+        const jenisAbsenSelect = document.getElementById('jenisAbsenSelect');
+        jenisAbsenSelect.onchange = () => {
+          fetchAttendanceLogs();
+        };
       } else if (pageName === 'laporan') {
         const today = new Date();
         const offset = today.getTimezoneOffset();
@@ -1071,10 +1147,11 @@
       } else if (pageName === 'pengaturan') {
         loadSettingsForm();
         loadHolidays();
+        loadJamSettings();
       }
     }
 
-    // Custom Pop-up Alert
+    // Update alert to show only the message
     function showAlert(title, message, type = 'success') {
       const alert = document.getElementById('customAlert');
       const titleEl = document.getElementById('alertTitle');
@@ -1083,10 +1160,9 @@
       const icon = document.getElementById('alertIcon');
 
       titleEl.textContent = title;
-      msgEl.textContent = message;
+      msgEl.textContent = message; // Just show message
 
       iconContainer.className = "rounded-full p-2 ";
-      
       if (type === 'success') {
         iconContainer.classList.add('bg-emerald-50', 'text-emerald-600');
         icon.setAttribute('data-lucide', 'check-circle-2');
@@ -1951,11 +2027,13 @@
 
       updateScanStatus('Mengirim Absen...', 'bg-amber-500/10 text-amber-400');
 
-      apiRequest('submitAttendance', { studentId: decodedText }).then(response => {
+      const jenisAbsen = document.getElementById('jenisAbsenSelect').value;
+
+      apiRequest('submitAttendance', { studentId: decodedText, jenisAbsen: jenisAbsen }).then(response => {
         if (response.success) {
-          showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) berhasil diabsen pada pukul ${response.log.time}.`, 'success');
+          const statusText = response.log.status === 'Terlambat' ? 'Terlambat' : 'Tepat Waktu';
+          showAlert('Berhasil Absen!', `${response.log.name} (${response.log.classGroup}) absen ${jenisAbsen} pada pukul ${response.log.time}. Status: ${statusText}`, 'success');
           
-          // Refresh log secara otomatis saat absen berhasil
           const refreshBtn = document.getElementById('btnRefreshLog');
           withBtnIconLoading(refreshBtn, async () => {
             await fetchAttendanceLogs();
@@ -1983,7 +2061,8 @@
     function onQrCodeError(errorMessage) {}
 
     async function fetchAttendanceLogs() {
-      const response = await apiRequest('getAttendanceLogs');
+      const jenisAbsen = document.getElementById('jenisAbsenSelect').value;
+      const response = await apiRequest('getAttendanceLogs', { jenisAbsen: jenisAbsen });
       if (response.success) {
         attendanceLogs = response.data;
         renderAttendanceLogs();
@@ -2007,11 +2086,14 @@
       }
 
       attendanceLogs.forEach(log => {
+        const statusColor = log.status === 'Terlambat' ? 'text-rose-600' : 'text-emerald-600';
+        const statusBg = log.status === 'Terlambat' ? 'bg-rose-50' : 'bg-emerald-50';
         logContainer.innerHTML += `
           <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
             <div class="space-y-1 overflow-hidden pr-4">
               <h4 class="font-bold text-slate-900 text-sm truncate">${log.name}</h4>
               <p class="text-xs text-slate-500 font-medium">${log.classGroup} • ID: ${log.studentId}</p>
+              <span class="inline-flex items-center text-xs font-bold ${statusColor} ${statusBg} px-2 py-0.5 rounded-lg">${log.status}</span>
             </div>
             <div class="text-right shrink-0">
               <span class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-lg">
@@ -2593,6 +2675,122 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    }
+
+    // ================= PENGATURAN JAM =================
+    let jamRows = [];
+
+    async function loadJamSettings() {
+      const response = await apiRequest('getJamSettings');
+      if (response.success) {
+        jamRows = response.data.length > 0 ? response.data : [];
+        renderJamTable();
+        toggleSabtuColumn();
+      }
+    }
+
+    function renderJamTable() {
+      const tbody = document.getElementById('jamTableBody');
+      tbody.innerHTML = '';
+      
+      if (jamRows.length === 0) {
+        jamRows.push({ jenisAbsen: 'Datang', jam: '', senin: '', selasa: '', rabu: '', kamis: '', jumat: '', sabtu: '' });
+      }
+      
+      jamRows.forEach((row, index) => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-slate-50">
+            <td class="px-3 py-3">
+              <select class="jamJenis w-full px-2 py-1.5 border border-slate-200 rounded text-xs" data-index="${index}">
+                <option value="Datang" ${row.jenisAbsen === 'Datang' ? 'selected' : ''}>Datang</option>
+                <option value="Pulang" ${row.jenisAbsen === 'Pulang' ? 'selected' : ''}>Pulang</option>
+              </select>
+            </td>
+            <td class="px-3 py-3">
+              <input type="time" class="jamWaktu w-full px-2 py-1.5 border border-slate-200 rounded text-xs" value="${row.jam}" data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <input type="checkbox" class="jamSenin w-4 h-4" ${row.senin === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <input type="checkbox" class="jamSelasa w-4 h-4" ${row.selasa === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <input type="checkbox" class="jamRabu w-4 h-4" ${row.rabu === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <input type="checkbox" class="jamKamis w-4 h-4" ${row.kamis === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <input type="checkbox" class="jamJumat w-4 h-4" ${row.jumat === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="jamSabtuCol px-3 py-3 text-center">
+              <input type="checkbox" class="jamSabtu w-4 h-4" ${row.sabtu === 'Y' ? 'checked' : ''} data-index="${index}">
+            </td>
+            <td class="px-3 py-3 text-center">
+              <button onclick="deleteJamRow(${index})" class="p-1 text-rose-500 hover:bg-rose-50 rounded">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      lucide.createIcons();
+    }
+
+    function addJamRow() {
+      jamRows.push({ jenisAbsen: 'Datang', jam: '', senin: '', selasa: '', rabu: '', kamis: '', jumat: '', sabtu: '' });
+      renderJamTable();
+    }
+
+    function deleteJamRow(index) {
+      jamRows.splice(index, 1);
+      renderJamTable();
+    }
+
+    function toggleSabtuColumn() {
+      const workDays = document.getElementById('settingWorkDays').value;
+      const sabtuCols = document.querySelectorAll('.jamSabtuCol');
+      const sabtuHeader = document.getElementById('jamSabtuHeader');
+      
+      if (workDays === '5') {
+        sabtuHeader.classList.add('hidden');
+        sabtuCols.forEach(col => col.classList.add('hidden'));
+      } else {
+        sabtuHeader.classList.remove('hidden');
+        sabtuCols.forEach(col => col.classList.remove('hidden'));
+      }
+    }
+
+    document.getElementById('settingWorkDays').addEventListener('change', toggleSabtuColumn);
+
+    async function saveJamSettings() {
+      const rows = [];
+      const tbody = document.getElementById('jamTableBody');
+      const trows = tbody.querySelectorAll('tr');
+      
+      trows.forEach((tr, index) => {
+        const jenis = tr.querySelector('.jamJenis').value;
+        const jam = tr.querySelector('.jamWaktu').value;
+        const senin = tr.querySelector('.jamSenin').checked ? 'Y' : '';
+        const selasa = tr.querySelector('.jamSelasa').checked ? 'Y' : '';
+        const rabu = tr.querySelector('.jamRabu').checked ? 'Y' : '';
+        const kamis = tr.querySelector('.jamKamis').checked ? 'Y' : '';
+        const jumat = tr.querySelector('.jamJumat').checked ? 'Y' : '';
+        const sabtu = tr.querySelector('.jamSabtu').checked ? 'Y' : '';
+        
+        rows.push({ jenisAbsen: jenis, jam, senin, selasa, rabu, kamis, jumat, sabtu });
+      });
+      
+      await withBtnIconLoading(document.getElementById('btnSaveJam'), async () => {
+        const response = await apiRequest('saveJamSettings', { data: rows });
+        if (response.success) {
+          showAlert('Berhasil', response.message, 'success');
+          loadJamSettings();
+        } else {
+          showAlert('Gagal', response.message, 'error');
+        }
+      });
     }
 
   </script>
